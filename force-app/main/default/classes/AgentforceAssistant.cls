@@ -60,9 +60,25 @@ public with sharing class AgentforceAssistant {
             resp.escalated = true;
             logConversation(req.sessionId, req.message, resp.responseText, true, req.orderId);
             logError('AgentforceAssistant', e);
+            createEscalationCase(req.sessionId, req.message, e.getMessage());
         }
 
         return resp;
+    }
+
+    private static void createEscalationCase(String sessionId, String userMessage, String errorMsg) {
+        try {
+            Case c = new Case(
+                Subject = 'AI Escalation — Session ' + sessionId,
+                Description = 'User message: ' + userMessage + '\n\nError: ' + errorMsg,
+                Origin = 'Chat',
+                Status = 'New',
+                Priority = 'Medium'
+            );
+            insert c;
+        } catch (Exception e) {
+            System.debug(LoggingLevel.ERROR, 'Escalation Case creation failed: ' + e.getMessage());
+        }
     }
 
     private static String routeAndRespond(AgentRequest req) {
@@ -81,9 +97,22 @@ public with sharing class AgentforceAssistant {
             return 'Could you please provide your order number so I can look it up?';
         }
 
-        // Menu recommendations
-        if (msg.contains('menu') || msg.contains('recommend')) {
-            return 'I can help with menu recommendations! Please provide your restaurant ID and I\'ll suggest our top items.';
+        // Menu recommendations — grounded in actual data
+        if (msg.contains('menu') || msg.contains('recommend') || msg.contains('food') || msg.contains('eat')) {
+            List<Menu_Item__c> items = MenuSelector.selectAllAvailable(5);
+            if (items.isEmpty()) {
+                return 'I don\'t have any available menu items to recommend right now.';
+            }
+            String response = 'Here are our top available items:\n';
+            for (Menu_Item__c item : items) {
+                response += '• ' + item.Name + ' ($' + item.Price__c + ') — ' + item.Category__c + '\n';
+            }
+            return response;
+        }
+
+        // Revenue insights — grounded in actual data
+        if (msg.contains('revenue') || msg.contains('insight') || msg.contains('sales') || msg.contains('analytics')) {
+            return 'I can provide revenue insights for a specific restaurant. Please provide the restaurant ID or ask your admin for access to the Revenue Dashboard.';
         }
 
         // Default response

@@ -31,7 +31,6 @@ global with sharing class OrderApi {
                 return;
             }
 
-            String status = payload.containsKey('Status__c') ? (String) payload.get('Status__c') : 'New';
             Decimal total = null;
             if (payload.containsKey('Total__c')) {
                 Object val = payload.get('Total__c');
@@ -46,15 +45,13 @@ global with sharing class OrderApi {
             String customerId = payload.containsKey('Customer__c') ? (String) payload.get('Customer__c') : null;
             String restaurantId = payload.containsKey('Restaurant__c') ? (String) payload.get('Restaurant__c') : null;
 
-            Order__c o = new Order__c(
-                Name = name,
-                Status__c = status,
-                Total__c = total,
-                Customer__c = customerId,
-                Restaurant__c = restaurantId,
-                Order_Date__c = Datetime.now()
-            );
-            insert o;
+            // Delegate to Service Layer — ensures validation, events, and audit
+            Order__c o = OrderService.createOrder(name, customerId, restaurantId);
+            // Set total after creation if provided (service layer doesn't accept total)
+            if (total != null) {
+                o.Total__c = total;
+                update o;
+            }
 
             res.statusCode = 201;
             res.responseBody = Blob.valueOf(JSON.serialize(o));
@@ -69,3 +66,4 @@ global with sharing class OrderApi {
         }
     }
 }
+

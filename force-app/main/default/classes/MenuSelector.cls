@@ -61,4 +61,15 @@ public with sharing class MenuSelector {
             WHERE Id IN :itemIds
         ];
     }
+
+    public static List<Menu_Item__c> selectAllAvailable(Integer limitCount) {
+        return [
+            SELECT Id, Name, Description__c, Price__c, Category__c, Is_Available__c, Restaurant__c
+            FROM Menu_Item__c
+            WHERE Is_Available__c = true
+            WITH SECURITY_ENFORCED
+            ORDER BY Category__c, Name
+            LIMIT :limitCount
+        ];
+    }
 }

@@ -68,4 +68,24 @@ public with sharing class OrderService {
         OrderEventPublisher.publishStatusChanges(newList, oldMap);
         OrderEventPublisher.createStatusHistory(newList, oldMap);
     }
+
+    /**
+     * Recalculates Order totals from line items.
+     * Uses Selector for SOQL, Calculator for logic, Service for DML.
+     */
+    public static void recalculateTotals(Set<Id> orderIds) {
+        if (orderIds == null || orderIds.isEmpty()) return;
+
+        List<Order_Item__c> items = OrderSelector.selectLineItemsByOrderIds(orderIds);
+        Map<Id, Decimal> totals = OrderCalculator.calculateTotals(orderIds, items);
+
+        List<Order__c> ordersToUpdate = new List<Order__c>();
+        for (Id oid : totals.keySet()) {
+            ordersToUpdate.add(new Order__c(Id = oid, Total__c = totals.get(oid)));
+        }
+        if (!ordersToUpdate.isEmpty()) {
+            update ordersToUpdate;
+        }
+    }
 }
+

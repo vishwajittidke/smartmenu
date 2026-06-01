@@ -66,4 +66,13 @@ public with sharing class OrderSelector {
               AND Status__c = 'Completed'
         ];
     }
+
+    public static List<Order_Item__c> selectLineItemsByOrderIds(Set<Id> orderIds) {
+        return [
+            SELECT Order__c, Quantity__c, Unit_Price__c
+            FROM Order_Item__c
+            WHERE Order__c IN :orderIds
+            WITH SECURITY_ENFORCED
+        ];
+    }
 }

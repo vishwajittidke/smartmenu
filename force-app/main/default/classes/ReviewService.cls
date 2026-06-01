@@ -1,5 +1,6 @@
 /**
  * ReviewService — Business workflows for customer reviews.
+ * All SOQL delegated to ReviewSelector per architecture.
  */
 public with sharing class ReviewService {
 
@@ -30,29 +31,12 @@ public with sharing class ReviewService {
 
     @AuraEnabled(cacheable=true)
     public static List<Review__c> getReviewsForRestaurant(Id restaurantId) {
-        return [
-            SELECT Id, Name, Rating__c, Comment__c, Customer__c,
-                   Customer__r.FirstName, Customer__r.LastName, CreatedDate
-            FROM Review__c
-            WHERE Restaurant__c = :restaurantId
-            ORDER BY CreatedDate DESC
-            LIMIT 50
-        ];
+        return ReviewSelector.selectByRestaurant(restaurantId);
     }
 
     @AuraEnabled(cacheable=true)
     public static Map<String, Object> generateSummary(Id restaurantId) {
-        AggregateResult[] results = [
-            SELECT AVG(Rating__c) avgRating, COUNT(Id) totalReviews
-            FROM Review__c
-            WHERE Restaurant__c = :restaurantId
-        ];
-        Map<String, Object> summary = new Map<String, Object>();
-        if (!results.isEmpty()) {
-            summary.put('averageRating', results[0].get('avgRating'));
-            summary.put('totalReviews', results[0].get('totalReviews'));
-        }
-        return summary;
+        return ReviewSelector.selectAggregateByRestaurant(restaurantId);
     }
 
     private static void publishReviewEvent(Review__c review) {
