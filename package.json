@@ -1,0 +1,17 @@
+{
+  "name": "smartmenu-salesforce",
+  "version": "1.0.0",
+  "description": "SmartMenu — AI-Powered Restaurant Operations Platform (Salesforce)",
+  "private": true,
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint force-app/main/default/lwc",
+    "format": "prettier --write \"force-app/**/*.{js,html,css}\""
+  },
+  "devDependencies": {
+    "@salesforce/sfdx-lwc-jest": "^5.0.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0"
+  }
+}

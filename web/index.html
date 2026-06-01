@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartMenu — AI-Powered Restaurant Operations Platform. Manage orders, menus, reviews, and get intelligent insights.">
+    <title>SmartMenu — AI-Powered Restaurant Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <div class="brand-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>
+                </svg>
+            </div>
+            <span class="brand-text">SmartMenu</span>
+            <span class="brand-badge">AI</span>
+        </div>
+        <div class="nav-links">
+            <a href="#dashboard" class="nav-link active" data-section="dashboard">Dashboard</a>
+            <a href="#orders" class="nav-link" data-section="orders">Orders</a>
+            <a href="#menu" class="nav-link" data-section="menu">Menu</a>
+            <a href="#reviews" class="nav-link" data-section="reviews">Reviews</a>
+            <a href="#insights" class="nav-link" data-section="insights">Insights</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-connect" id="btnConnect">
+                <span class="connect-dot"></span>
+                Connect Org
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero" id="dashboard">
+        <div class="hero-content">
+            <div class="hero-badge">🚀 Live Platform</div>
+            <h1 class="hero-title">
+                <span class="gradient-text">SmartMenu</span>
+                <br>Restaurant Intelligence
+            </h1>
+            <p class="hero-subtitle">AI-powered order management, real-time insights, and intelligent customer engagement — all from your Salesforce org.</p>
+            <div class="hero-stats" id="heroStats">
+                <div class="stat-card">
+                    <span class="stat-value" id="statOrders">—</span>
+                    <span class="stat-label">Active Orders</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="statMenu">—</span>
+                    <span class="stat-label">Menu Items</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="statRevenue">—</span>
+                    <span class="stat-label">Revenue</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="statRating">—</span>
+                    <span class="stat-label">Avg Rating</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Connection Modal -->
+    <div class="modal-overlay" id="connectionModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Connect to Salesforce</h2>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">Enter your Salesforce org details to connect the live dashboard.</p>
+                <div class="form-group">
+                    <label for="orgUrl">Instance URL</label>
+                    <input type="url" id="orgUrl" placeholder="https://your-org.my.salesforce.com" value="">
+                </div>
+                <div class="form-group">
+                    <label for="accessToken">Access Token</label>
+                    <input type="password" id="accessToken" placeholder="Paste your session/access token">
+                    <span class="form-hint">Run <code>sf org display -o vtidke56@gmail.com --json</code> to get your token</span>
+                </div>
+                <button class="btn-primary" id="btnSaveConnection">Connect & Load Data</button>
+                <button class="btn-secondary" id="btnDemoMode">Use Demo Mode</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Section -->
+    <section class="section" id="orders">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Recent Orders</h2>
+                <p class="section-subtitle">Live data from your Salesforce org</p>
+            </div>
+            <button class="btn-icon" id="btnRefreshOrders" title="Refresh">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            </button>
+        </div>
+        <div class="orders-grid" id="ordersGrid">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section class="section" id="menu">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Menu Items</h2>
+                <p class="section-subtitle">Restaurant menu with categories and pricing</p>
+            </div>
+            <div class="category-filters" id="categoryFilters"></div>
+        </div>
+        <div class="menu-grid" id="menuGrid">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="section" id="reviews">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Customer Reviews</h2>
+                <p class="section-subtitle">What customers are saying</p>
+            </div>
+        </div>
+        <div class="reviews-container" id="reviewsContainer">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+    </section>
+
+    <!-- Insights Section -->
+    <section class="section" id="insights">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Revenue Insights</h2>
+                <p class="section-subtitle">AI-powered analytics from your order data</p>
+            </div>
+        </div>
+        <div class="insights-grid" id="insightsGrid">
+            <div class="insight-card glass">
+                <div class="insight-icon">💰</div>
+                <div class="insight-content">
+                    <span class="insight-value" id="insightRevenue">$0</span>
+                    <span class="insight-label">Total Revenue</span>
+                </div>
+            </div>
+            <div class="insight-card glass">
+                <div class="insight-icon">📦</div>
+                <div class="insight-content">
+                    <span class="insight-value" id="insightCompletedOrders">0</span>
+                    <span class="insight-label">Completed Orders</span>
+                </div>
+            </div>
+            <div class="insight-card glass">
+                <div class="insight-icon">📊</div>
+                <div class="insight-content">
+                    <span class="insight-value" id="insightAvgOrder">$0</span>
+                    <span class="insight-label">Avg Order Value</span>
+                </div>
+            </div>
+            <div class="insight-card glass">
+                <div class="insight-icon">⭐</div>
+                <div class="insight-content">
+                    <span class="insight-value" id="insightAvgRating">0</span>
+                    <span class="insight-label">Avg Rating</span>
+                </div>
+            </div>
+        </div>
+        <div class="chart-container glass" id="statusChart">
+            <h3>Orders by Status</h3>
+            <div class="bar-chart" id="barChart"></div>
+        </div>
+    </section>
+
+    <!-- AI Assistant Floating Widget -->
+    <div class="chat-fab" id="chatFab">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </div>
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-avatar">🤖</div>
+                <div>
+                    <span class="chat-title">SmartMenu AI</span>
+                    <span class="chat-status">Powered by Agentforce</span>
+                </div>
+            </div>
+            <button class="chat-close" id="chatClose">&times;</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message bot">
+                <div class="message-bubble">
+                    Hi! I'm your SmartMenu AI Assistant. I can help with order tracking, menu recommendations, and restaurant insights. What would you like to know?
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Ask about orders, menu, insights...">
+            <button class="chat-send" id="chatSend">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>SmartMenu © 2026 — AI-Powered Restaurant Platform built on Salesforce + Agentforce</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

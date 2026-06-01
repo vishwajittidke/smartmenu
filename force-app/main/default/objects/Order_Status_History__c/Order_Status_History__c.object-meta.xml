@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+  <label>Order Status History</label>
+  <pluralLabel>Order Status Histories</pluralLabel>
+  <nameField>
+    <type>AutoNumber</type>
+    <label>History Number</label>
+    <displayFormat>OSH-{00000}</displayFormat>
+  </nameField>
+  <deploymentStatus>Deployed</deploymentStatus>
+  <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

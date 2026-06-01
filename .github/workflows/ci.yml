@@ -2,20 +2,113 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop, 'release/**' ]
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      - name: Install sfdx CLI
+          node-version: '20'
+
+      - name: Install Salesforce CLI
+        run: npm install --global @salesforce/cli
+
+      - name: Authenticate (JWT)
+        env:
+          SF_JWT_KEY: ${{ secrets.SF_JWT_KEY }}
+          SF_CLIENT_ID: ${{ secrets.SF_CLIENT_ID }}
+          SF_USERNAME: ${{ secrets.SF_USERNAME }}
+          SF_INSTANCE_URL: ${{ secrets.SF_INSTANCE_URL }}
         run: |
-          npm install --global sfdx-cli
-      # Add deployment steps; requires secrets.SF_USERNAME and secrets.SF_PASSWORD
-      - name: Deploy to org (stub)
-        run: echo "Configure deploy step with sfdx auth and deploy command"
+          echo "$SF_JWT_KEY" > server.key
+          sf org login jwt \
+            --client-id "$SF_CLIENT_ID" \
+            --jwt-key-file server.key \
+            --username "$SF_USERNAME" \
+            --instance-url "${SF_INSTANCE_URL:-https://login.salesforce.com}" \
+            --alias SmartMenuCI \
+            --set-default
+
+      - name: Static Analysis (PMD)
+        run: |
+          sf scanner run \
+            --target force-app \
+            --format table \
+            --severity-threshold 3 || echo "PMD warnings found (non-blocking)"
+
+      - name: Validate Deployment (Check-Only)
+        run: |
+          sf project deploy start \
+            --source-dir force-app \
+            --target-org SmartMenuCI \
+            --dry-run \
+            --wait 30
+
+      - name: Run Apex Tests
+        run: |
+          sf apex test run \
+            --target-org SmartMenuCI \
+            --result-format human \
+            --code-coverage \
+            --wait 15
+
+      - name: Install LWC Testing Dependencies
+        run: npm ci
+        continue-on-error: true
+
+      - name: Run LWC Jest Tests
+        run: npm test -- --passWithNoTests
+        continue-on-error: true
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Salesforce CLI
+        run: npm install --global @salesforce/cli
+
+      - name: Authenticate (JWT)
+        env:
+          SF_JWT_KEY: ${{ secrets.SF_JWT_KEY }}
+          SF_CLIENT_ID: ${{ secrets.SF_CLIENT_ID }}
+          SF_USERNAME: ${{ secrets.SF_USERNAME }}
+          SF_INSTANCE_URL: ${{ secrets.SF_INSTANCE_URL }}
+        run: |
+          echo "$SF_JWT_KEY" > server.key
+          sf org login jwt \
+            --client-id "$SF_CLIENT_ID" \
+            --jwt-key-file server.key \
+            --username "$SF_USERNAME" \
+            --instance-url "${SF_INSTANCE_URL:-https://login.salesforce.com}" \
+            --alias SmartMenuCI \
+            --set-default
+
+      - name: Deploy to Org
+        run: |
+          sf project deploy start \
+            --source-dir force-app \
+            --target-org SmartMenuCI \
+            --wait 30
+
+      - name: Run Post-Deploy Validation Tests
+        run: |
+          sf apex test run \
+            --target-org SmartMenuCI \
+            --result-format human \
+            --code-coverage \
+            --wait 15

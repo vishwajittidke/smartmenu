@@ -1,0 +1,40 @@
+﻿{
+  "status": 0,
+  "result": {
+    "records": [
+      {
+        "attributes": {
+          "type": "Application_Log__c",
+          "url": "/services/data/v66.0/sobjects/Application_Log__c/a03d200001prqK9AAI"
+        },
+        "Id": "a03d200001prqK9AAI",
+        "OwnerId": "005d200000GZFMMAA5",
+        "IsDeleted": false,
+        "Name": "AgentMsg-1780293429473",
+        "CreatedDate": "2026-06-01T05:57:09.000+0000",
+        "CreatedById": "005d200000GZFMMAA5",
+        "LastModifiedDate": "2026-06-01T05:57:09.000+0000",
+        "LastModifiedById": "005d200000GZFMMAA5",
+        "SystemModstamp": "2026-06-01T05:57:09.000+0000"
+      },
+      {
+        "attributes": {
+          "type": "Application_Log__c",
+          "url": "/services/data/v66.0/sobjects/Application_Log__c/a03d200001prbemAAA"
+        },
+        "Id": "a03d200001prbemAAA",
+        "OwnerId": "005d200000GZFMMAA5",
+        "IsDeleted": false,
+        "Name": "AgentMsg-1780293269113",
+        "CreatedDate": "2026-06-01T05:54:29.000+0000",
+        "CreatedById": "005d200000GZFMMAA5",
+        "LastModifiedDate": "2026-06-01T05:54:29.000+0000",
+        "LastModifiedById": "005d200000GZFMMAA5",
+        "SystemModstamp": "2026-06-01T05:54:29.000+0000"
+      }
+    ],
+    "totalSize": 2,
+    "done": true
+  },
+  "warnings": []
+}

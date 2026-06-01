@@ -1,0 +1,10 @@
+{
+  "orgName": "SmartMenu Dev",
+  "edition": "Developer",
+  "features": ["API","LightningExperience","S1DesktopEnabled"],
+  "settings": {
+    "orgPreferenceSettings": {
+      "s1DesktopEnabled": true
+    }
+  }
+}

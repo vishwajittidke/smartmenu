@@ -1,14 +1,32 @@
 <template>
-    <lightning-card title="SmartMenu — Recent Orders">
-        <template if:true={orders}>
-            <ul>
-                <template for:each={orders} for:item="order">
-                    <li key={order.Id}>{order.Name} — {order.Status__c} — ${order.Total__c}</li>
-                </template>
-            </ul>
+    <lightning-card title="SmartMenu — Recent Orders" icon-name="standard:orders">
+        <template if:true={isLoading}>
+            <div class="slds-align_absolute-center slds-p-around_large">
+                <lightning-spinner alternative-text="Loading orders..." size="medium"></lightning-spinner>
+            </div>
         </template>
-        <template if:false={orders}>
-            <div>No orders found.</div>
+        <template if:true={hasError}>
+            <div class="slds-p-around_medium slds-theme_error slds-text-color_inverse">
+                <lightning-icon icon-name="utility:error" variant="inverse" size="small" class="slds-m-right_x-small"></lightning-icon>
+                {errorMessage}
+            </div>
+        </template>
+        <template if:true={hasOrders}>
+            <lightning-datatable
+                key-field="Id"
+                data={orders}
+                columns={columns}
+                hide-checkbox-column>
+            </lightning-datatable>
+        </template>
+        <template if:false={hasOrders}>
+            <template if:false={isLoading}>
+                <template if:false={hasError}>
+                    <div class="slds-align_absolute-center slds-p-around_large slds-text-color_weak">
+                        No orders found.
+                    </div>
+                </template>
+            </template>
         </template>
     </lightning-card>
 </template>

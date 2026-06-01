@@ -6,11 +6,37 @@
     </types>
     <types>
         <members>*</members>
+        <name>ApexTrigger</name>
+    </types>
+    <types>
+        <members>*</members>
         <name>LightningComponentBundle</name>
     </types>
     <types>
         <members>Order__c</members>
+        <members>Menu_Item__c</members>
+        <members>Order_Item__c</members>
+        <members>Review__c</members>
+        <members>Order_Status_History__c</members>
+        <members>Application_Log__c</members>
+        <members>AI_Conversation__c</members>
+        <members>Integration_Transaction__c</members>
+        <members>Notification__c</members>
         <name>CustomObject</name>
     </types>
-    <version>56.0</version>
+    <types>
+        <members>Order_Placed__e</members>
+        <members>Order_Status_Changed__e</members>
+        <members>Review_Submitted__e</members>
+        <name>PlatformEvent</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>PermissionSet</name>
+    </types>
+    <version>62.0</version>
 </Package>
