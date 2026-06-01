@@ -1,0 +1,6 @@
+/.sfdx
+.localdevserver
+.venv
+node_modules/
+*.log
+/.env

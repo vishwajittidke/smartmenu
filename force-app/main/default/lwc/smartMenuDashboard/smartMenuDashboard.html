@@ -1,0 +1,14 @@
+<template>
+    <lightning-card title="SmartMenu — Recent Orders">
+        <template if:true={orders}>
+            <ul>
+                <template for:each={orders} for:item="order">
+                    <li key={order.Id}>{order.Name} — {order.Status__c} — ${order.Total__c}</li>
+                </template>
+            </ul>
+        </template>
+        <template if:false={orders}>
+            <div>No orders found.</div>
+        </template>
+    </lightning-card>
+</template>

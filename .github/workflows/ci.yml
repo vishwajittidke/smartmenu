@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install sfdx CLI
+        run: |
+          npm install --global sfdx-cli
+      # Add deployment steps; requires secrets.SF_USERNAME and secrets.SF_PASSWORD
+      - name: Deploy to org (stub)
+        run: echo "Configure deploy step with sfdx auth and deploy command"
