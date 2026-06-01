@@ -375,7 +375,59 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ─── New Order Modal ────────────────────────────────────────────────
     const orderModal = document.getElementById('newOrderModal');
-    document.getElementById('btnNewOrder').addEventListener('click', () => orderModal.classList.add('open'));
+    
+    // Recalculates order total on checkbox state changes
+    function recalculateOrderTotalInput() {
+        let total = 0;
+        const container = document.getElementById('orderItemsSelector');
+        if (container) {
+            container.querySelectorAll('.order-item-checkbox:checked').forEach(cb => {
+                const price = parseFloat(cb.dataset.price) || 0;
+                const qtyInput = container.querySelector(`.order-item-qty[data-id="${cb.dataset.id}"]`);
+                const qty = parseInt(qtyInput ? qtyInput.value : 1) || 1;
+                total += price * qty;
+            });
+        }
+        document.getElementById('orderTotal').value = total.toFixed(2);
+    }
+
+    document.getElementById('btnNewOrder').addEventListener('click', () => {
+        const container = document.getElementById('orderItemsSelector');
+        if (container) {
+            if (state.menuItems.length === 0) {
+                container.innerHTML = '<p style="color:#aaa;font-size:0.9rem;margin:0;">No menu items available. Add some menu items first!</p>';
+            } else {
+                container.innerHTML = state.menuItems.map(item => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.9rem;gap:8px;width:100%;box-sizing:border-box;">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;margin:0;color:#fff;">
+                            <input type="checkbox" class="order-item-checkbox" data-id="${item.Id}" data-price="${item.Price__c}">
+                            <span>${item.Name} (${formatCurrency(item.Price__c)})</span>
+                        </label>
+                        <input type="number" class="order-item-qty" data-id="${item.Id}" value="1" min="1" style="width:50px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:#fff;padding:2px 4px;font-size:0.85rem;" disabled>
+                    </div>
+                `).join('');
+                
+                // Toggle quantity input on check
+                container.querySelectorAll('.order-item-checkbox').forEach(cb => {
+                    cb.addEventListener('change', () => {
+                        const qtyInput = container.querySelector(`.order-item-qty[data-id="${cb.dataset.id}"]`);
+                        if (qtyInput) {
+                            qtyInput.disabled = !cb.checked;
+                        }
+                        recalculateOrderTotalInput();
+                    });
+                });
+            }
+        }
+        // Reset fields
+        document.getElementById('orderName').value = '';
+        document.getElementById('orderCustomer').value = '';
+        document.getElementById('orderTotal').value = '0.00';
+        document.getElementById('orderStatus').value = 'New';
+        
+        orderModal.classList.add('open');
+    });
+
     document.getElementById('newOrderClose').addEventListener('click', () => orderModal.classList.remove('open'));
     orderModal.addEventListener('click', (e) => { if (e.target === orderModal) orderModal.classList.remove('open'); });
     
@@ -386,10 +438,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = document.getElementById('orderStatus').value;
         
         if (!name) { showToast('Order name is required', 'error'); return; }
-        if (total <= 0) { showToast('Total must be greater than 0', 'error'); return; }
+        
+        // Build items payload
+        const selectedItems = [];
+        const container = document.getElementById('orderItemsSelector');
+        if (container) {
+            container.querySelectorAll('.order-item-checkbox:checked').forEach(cb => {
+                const menuItemId = cb.dataset.id;
+                const qtyInput = container.querySelector(`.order-item-qty[data-id="${menuItemId}"]`);
+                const quantity = parseInt(qtyInput ? qtyInput.value : 1) || 1;
+                selectedItems.push({ menuItemId, quantity });
+            });
+        }
+        
+        if (selectedItems.length === 0) {
+            showToast('Please select at least one menu item', 'error');
+            return;
+        }
         
         if (state.connected) {
-            // POST to Salesforce REST API
             try {
                 const res = await fetch(`${state.orgUrl}/services/apexrest/orders/`, {
                     method: 'POST',
@@ -397,10 +464,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         'Authorization': `Bearer ${state.accessToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ name, total })
+                    body: JSON.stringify({
+                        name,
+                        restaurant: state.insights.restaurantId,
+                        items: selectedItems
+                    })
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                showToast(`✓ Order "${name}" created in Salesforce!`);
+                showToast(`✓ Order "${name}" created with child items in Salesforce!`);
                 await loadLiveData();
             } catch (e) {
                 showToast('Failed to create order: ' + e.message, 'error');
@@ -419,6 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Update insights
             state.insights.ordersByStatus[status] = (state.insights.ordersByStatus[status] || 0) + 1;
+            state.insights.totalRevenue = (state.insights.totalRevenue || 0) + total;
             
             renderOrders(state.orders);
             renderInsights(state.insights);
@@ -426,11 +498,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast(`✓ Order "${name}" created!`);
         }
         
-        // Clear form & close
-        document.getElementById('orderName').value = '';
-        document.getElementById('orderCustomer').value = '';
-        document.getElementById('orderTotal').value = '';
-        document.getElementById('orderStatus').value = 'New';
         orderModal.classList.remove('open');
     });
     
