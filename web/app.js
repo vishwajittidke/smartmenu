@@ -345,6 +345,118 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
+    // ─── Toast Notification ─────────────────────────────────────────────
+    function showToast(message, type = 'success') {
+        let toast = document.querySelector('.toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'toast';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        requestAnimationFrame(() => toast.classList.add('show'));
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    
+    // ─── New Order Modal ────────────────────────────────────────────────
+    const orderModal = document.getElementById('newOrderModal');
+    document.getElementById('btnNewOrder').addEventListener('click', () => orderModal.classList.add('open'));
+    document.getElementById('newOrderClose').addEventListener('click', () => orderModal.classList.remove('open'));
+    orderModal.addEventListener('click', (e) => { if (e.target === orderModal) orderModal.classList.remove('open'); });
+    
+    document.getElementById('btnSubmitOrder').addEventListener('click', async () => {
+        const name = document.getElementById('orderName').value.trim();
+        const customer = document.getElementById('orderCustomer').value.trim();
+        const total = parseFloat(document.getElementById('orderTotal').value) || 0;
+        const status = document.getElementById('orderStatus').value;
+        
+        if (!name) { showToast('Order name is required', 'error'); return; }
+        if (total <= 0) { showToast('Total must be greater than 0', 'error'); return; }
+        
+        if (state.connected) {
+            // POST to Salesforce REST API
+            try {
+                const res = await fetch(`${state.orgUrl}/services/apexrest/orders/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${state.accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, total })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                showToast(`✓ Order "${name}" created in Salesforce!`);
+                await loadLiveData();
+            } catch (e) {
+                showToast('Failed to create order: ' + e.message, 'error');
+            }
+        } else {
+            // Demo mode — add locally
+            const newOrder = {
+                Id: 'demo-' + Date.now(),
+                Name: name,
+                Status__c: status,
+                Total__c: total,
+                Customer__c: customer || 'Demo Customer',
+                CreatedDate: new Date().toISOString()
+            };
+            state.orders.unshift(newOrder);
+            
+            // Update insights
+            state.insights.ordersByStatus[status] = (state.insights.ordersByStatus[status] || 0) + 1;
+            
+            renderOrders(state.orders);
+            renderInsights(state.insights);
+            updateHeroStats();
+            showToast(`✓ Order "${name}" created!`);
+        }
+        
+        // Clear form & close
+        document.getElementById('orderName').value = '';
+        document.getElementById('orderCustomer').value = '';
+        document.getElementById('orderTotal').value = '';
+        document.getElementById('orderStatus').value = 'New';
+        orderModal.classList.remove('open');
+    });
+    
+    // ─── New Menu Item Modal ────────────────────────────────────────────
+    const menuModal = document.getElementById('newMenuModal');
+    document.getElementById('btnNewMenuItem').addEventListener('click', () => menuModal.classList.add('open'));
+    document.getElementById('newMenuClose').addEventListener('click', () => menuModal.classList.remove('open'));
+    menuModal.addEventListener('click', (e) => { if (e.target === menuModal) menuModal.classList.remove('open'); });
+    
+    document.getElementById('btnSubmitMenuItem').addEventListener('click', async () => {
+        const name = document.getElementById('menuItemName').value.trim();
+        const desc = document.getElementById('menuItemDesc').value.trim();
+        const price = parseFloat(document.getElementById('menuItemPrice').value) || 0;
+        const category = document.getElementById('menuItemCategory').value;
+        
+        if (!name) { showToast('Item name is required', 'error'); return; }
+        if (price <= 0) { showToast('Price must be greater than 0', 'error'); return; }
+        
+        // Add locally (demo mode or live — MenuService doesn't have a REST endpoint yet)
+        const newItem = {
+            Id: 'demo-' + Date.now(),
+            Name: name,
+            Description__c: desc,
+            Price__c: price,
+            Category__c: category,
+            Is_Available__c: true
+        };
+        state.menuItems.unshift(newItem);
+        renderMenu(state.menuItems);
+        updateHeroStats();
+        showToast(`✓ "${name}" added to menu!`);
+        
+        // Clear form & close
+        document.getElementById('menuItemName').value = '';
+        document.getElementById('menuItemDesc').value = '';
+        document.getElementById('menuItemPrice').value = '';
+        document.getElementById('menuItemCategory').value = 'Appetizer';
+        menuModal.classList.remove('open');
+    });
+    
     // Chat widget
     const chatFab = document.getElementById('chatFab');
     const chatWindow = document.getElementById('chatWindow');
