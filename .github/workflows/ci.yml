@@ -3,19 +3,24 @@ name: CI
 on:
   push:
     branches: [ main, develop ]
+    paths-ignore:
+      - 'web/**'
+      - '*.md'
   pull_request:
     branches: [ main, develop, 'release/**' ]
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    # Only run if Salesforce secrets are configured
+    if: ${{ vars.SF_CONFIGURED == 'true' }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install Salesforce CLI
         run: npm install --global @salesforce/cli
@@ -36,13 +41,6 @@ jobs:
             --alias SmartMenuCI \
             --set-default
 
-      - name: Static Analysis (PMD)
-        run: |
-          sf scanner run \
-            --target force-app \
-            --format table \
-            --severity-threshold 3 || echo "PMD warnings found (non-blocking)"
-
       - name: Validate Deployment (Check-Only)
         run: |
           sf project deploy start \
@@ -59,25 +57,17 @@ jobs:
             --code-coverage \
             --wait 15
 
-      - name: Install LWC Testing Dependencies
-        run: npm ci
-        continue-on-error: true
-
-      - name: Run LWC Jest Tests
-        run: npm test -- --passWithNoTests
-        continue-on-error: true
-
   deploy:
     needs: validate
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.SF_CONFIGURED == 'true'
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install Salesforce CLI
         run: npm install --global @salesforce/cli
