@@ -407,15 +407,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `).join('');
                 
-                // Toggle quantity input on check
+                // Toggle quantity input on check and bind real-time recalculation to quantity changes
                 container.querySelectorAll('.order-item-checkbox').forEach(cb => {
+                    const qtyInput = container.querySelector(`.order-item-qty[data-id="${cb.dataset.id}"]`);
+                    
                     cb.addEventListener('change', () => {
-                        const qtyInput = container.querySelector(`.order-item-qty[data-id="${cb.dataset.id}"]`);
                         if (qtyInput) {
                             qtyInput.disabled = !cb.checked;
                         }
                         recalculateOrderTotalInput();
                     });
+                    
+                    if (qtyInput) {
+                        qtyInput.addEventListener('input', recalculateOrderTotalInput);
+                        qtyInput.addEventListener('change', recalculateOrderTotalInput);
+                    }
                 });
             }
         }
