@@ -15,36 +15,15 @@ const state = {
 
 // ─── Demo Data ──────────────────────────────────────────────────────────
 const DEMO = {
-    orders: [
-        { Id: '001', Name: 'ORD-2024-001', Status__c: 'New', Total__c: 89.99, Customer__c: 'John Doe', Restaurant__c: 'The Gourmet Hub', CreatedDate: '2026-06-01T10:30:00Z' },
-        { Id: '002', Name: 'ORD-2024-002', Status__c: 'In Progress', Total__c: 145.50, Customer__c: 'Jane Smith', Restaurant__c: 'The Gourmet Hub', CreatedDate: '2026-06-01T11:15:00Z' },
-        { Id: '003', Name: 'ORD-2024-003', Status__c: 'Completed', Total__c: 67.00, Customer__c: 'Bob Wilson', Restaurant__c: 'The Gourmet Hub', CreatedDate: '2026-06-01T09:45:00Z' },
-        { Id: '004', Name: 'ORD-2024-004', Status__c: 'New', Total__c: 234.75, Customer__c: 'Alice Brown', Restaurant__c: 'Spice Garden', CreatedDate: '2026-06-01T12:00:00Z' },
-        { Id: '005', Name: 'ORD-2024-005', Status__c: 'Completed', Total__c: 178.25, Customer__c: 'Charlie Lee', Restaurant__c: 'The Gourmet Hub', CreatedDate: '2026-05-31T18:30:00Z' },
-        { Id: '006', Name: 'ORD-2024-006', Status__c: 'Cancelled', Total__c: 45.00, Customer__c: 'Diana Prince', Restaurant__c: 'Spice Garden', CreatedDate: '2026-05-31T20:15:00Z' },
-    ],
-    menuItems: [
-        { Id: 'm1', Name: 'Truffle Risotto', Price__c: 28.99, Category__c: 'Main Course', Description__c: 'Creamy arborio rice with black truffle shavings and parmesan', Is_Available__c: true },
-        { Id: 'm2', Name: 'Wagyu Burger', Price__c: 34.99, Category__c: 'Main Course', Description__c: 'Premium wagyu beef patty with aged cheddar and caramelized onions', Is_Available__c: true },
-        { Id: 'm3', Name: 'Burrata Salad', Price__c: 18.50, Category__c: 'Appetizer', Description__c: 'Fresh burrata with heirloom tomatoes, basil, and balsamic glaze', Is_Available__c: true },
-        { Id: 'm4', Name: 'Lobster Bisque', Price__c: 16.99, Category__c: 'Appetizer', Description__c: 'Rich and creamy lobster bisque with a touch of cognac', Is_Available__c: true },
-        { Id: 'm5', Name: 'Tiramisu', Price__c: 14.99, Category__c: 'Dessert', Description__c: 'Classic Italian tiramisu with mascarpone and espresso-soaked ladyfingers', Is_Available__c: true },
-        { Id: 'm6', Name: 'Craft Lemonade', Price__c: 8.50, Category__c: 'Beverage', Description__c: 'Fresh-squeezed lemonade with lavender and mint', Is_Available__c: true },
-        { Id: 'm7', Name: 'Garlic Bread', Price__c: 9.99, Category__c: 'Side', Description__c: 'Toasted sourdough with roasted garlic butter and herbs', Is_Available__c: true },
-        { Id: 'm8', Name: 'Molten Lava Cake', Price__c: 16.50, Category__c: 'Dessert', Description__c: 'Dark chocolate fondant with vanilla bean ice cream', Is_Available__c: false },
-    ],
-    reviews: [
-        { Id: 'r1', Rating__c: 5, Comment__c: 'Absolutely incredible! The truffle risotto was the best I\'ve ever had. Service was impeccable.', CreatedDate: '2026-05-30T14:00:00Z', Customer__r: { FirstName: 'Sarah', LastName: 'Johnson' } },
-        { Id: 'r2', Rating__c: 4.5, Comment__c: 'Great food and atmosphere. The wagyu burger is a must-try. Will definitely come back!', CreatedDate: '2026-05-29T19:30:00Z', Customer__r: { FirstName: 'Mike', LastName: 'Chen' } },
-        { Id: 'r3', Rating__c: 4, Comment__c: 'Lovely evening. The desserts are phenomenal. Slightly long wait for the main course.', CreatedDate: '2026-05-28T21:00:00Z', Customer__r: { FirstName: 'Emma', LastName: 'Williams' } },
-        { Id: 'r4', Rating__c: 5, Comment__c: 'The AI ordering assistant made everything so smooth. Future of dining!', CreatedDate: '2026-05-27T12:15:00Z', Customer__r: { FirstName: 'Alex', LastName: 'Rivera' } },
-    ],
+    orders: [],
+    menuItems: [],
+    reviews: [],
     insights: {
-        totalRevenue: 4567.89,
-        completedOrders: 42,
-        averageOrderValue: 108.76,
-        reviewSummary: { averageRating: 4.6, totalReviews: 127 },
-        ordersByStatus: { 'New': 8, 'In Progress': 5, 'Completed': 42, 'Cancelled': 3 }
+        totalRevenue: 0.00,
+        completedOrders: 0,
+        averageOrderValue: 0.00,
+        reviewSummary: { averageRating: 0.0, totalReviews: 0 },
+        ordersByStatus: { 'New': 0, 'In Progress': 0, 'Completed': 0, 'Cancelled': 0 }
     }
 };
 
