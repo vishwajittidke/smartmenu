@@ -1,32 +1,186 @@
 <template>
-    <lightning-card title="SmartMenu — Recent Orders" icon-name="standard:orders">
-        <template if:true={isLoading}>
-            <div class="slds-align_absolute-center slds-p-around_large">
-                <lightning-spinner alternative-text="Loading orders..." size="medium"></lightning-spinner>
+    <!-- Main Dashboard Container -->
+    <div class="slds-box slds-theme_default slds-p-around_none" style="border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+        
+        <!-- Header Banner -->
+        <div class="dashboard-header slds-p-around_large slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+            <div>
+                <div class="slds-grid slds-grid_vertical-align-center">
+                    <lightning-icon icon-name="standard:orders" size="medium" variant="inverse" class="slds-m-right_small"></lightning-icon>
+                    <h1 class="slds-text-heading_medium slds-text-title_bold" style="font-weight: 800;">SmartMenu — Operations Command Center</h1>
+                </div>
+                <p class="slds-text-color_inverse-weak slds-m-top_xx-small">Real-time order monitoring, preparation, and completion dispatch.</p>
             </div>
-        </template>
-        <template if:true={hasError}>
-            <div class="slds-p-around_medium slds-theme_error slds-text-color_inverse">
-                <lightning-icon icon-name="utility:error" variant="inverse" size="small" class="slds-m-right_x-small"></lightning-icon>
-                {errorMessage}
+            
+            <!-- Connection Status -->
+            <div>
+                <template if:true={isLive}>
+                    <div class="pulse-badge">
+                        <span class="pulse-dot"></span>
+                        Live Event Engine
+                    </div>
+                </template>
+                <template if:false={isLive}>
+                    <span class="slds-badge">Polling Mode</span>
+                </template>
             </div>
-        </template>
-        <template if:true={hasOrders}>
-            <lightning-datatable
-                key-field="Id"
-                data={orders}
-                columns={columns}
-                hide-checkbox-column>
-            </lightning-datatable>
-        </template>
-        <template if:false={hasOrders}>
-            <template if:false={isLoading}>
-                <template if:false={hasError}>
-                    <div class="slds-align_absolute-center slds-p-around_large slds-text-color_weak">
-                        No orders found.
+        </div>
+
+        <div class="slds-p-around_large">
+            <!-- Spinner -->
+            <template if:true={isLoading}>
+                <div class="slds-align_absolute-center slds-p-around_large" style="min-height: 100px;">
+                    <lightning-spinner alternative-text="Refreshing live orders..." size="medium"></lightning-spinner>
+                </div>
+            </template>
+
+            <!-- Error Banner -->
+            <template if:true={hasError}>
+                <div class="slds-p-around_medium slds-theme_error slds-text-color_inverse slds-m-bottom_medium" style="border-radius: 8px;">
+                    <lightning-icon icon-name="utility:error" variant="inverse" size="small" class="slds-m-right_x-small"></lightning-icon>
+                    {errorMessage}
+                </div>
+            </template>
+
+            <!-- Summary KPI Panel -->
+            <div class="kpi-container slds-m-bottom_large">
+                <div class="kpi-card">
+                    <div class="kpi-label">Active Orders</div>
+                    <div class="kpi-value" style="color: #f59e0b;">{activeOrdersCount}</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Volume (Today)</div>
+                    <div class="kpi-value" style="color: #3b82f6;">{totalOrdersCount}</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Completed Revenue</div>
+                    <div class="kpi-value" style="color: #10b981;">
+                        <lightning-formatted-number value={totalRevenue} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Avg Order Value</div>
+                    <div class="kpi-value" style="color: #6366f1;">
+                        <lightning-formatted-number value={avgOrderValue} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Filters and Search -->
+            <div class="slds-grid slds-wrap slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_medium slds-p-around_small" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-p-around_xx-small">
+                    <lightning-input 
+                        type="search" 
+                        variant="label-hidden" 
+                        placeholder="Search order name..."
+                        onchange={handleSearch} 
+                        value={searchKey}>
+                    </lightning-input>
+                </div>
+                
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3 slds-p-around_xx-small slds-grid slds-grid_align-end slds-grid_vertical-align-center">
+                    <span class="slds-m-right_small slds-text-title_bold slds-text-color_weak" style="font-size: 0.85rem;">Status Filter:</span>
+                    <lightning-radio-group
+                        name="statusFilter"
+                        variant="label-hidden"
+                        options={statusOptions}
+                        value={selectedStatus}
+                        type="button"
+                        onchange={handleStatusFilter}>
+                    </lightning-radio-group>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <template if:true={hasOrders}>
+                <div class="slds-border_top slds-border_bottom slds-border_left slds-border_right" style="border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1;">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={filteredOrders}
+                        columns={columns}
+                        hide-checkbox-column
+                        onrowaction={handleRowAction}
+                        class="slds-max-medium-table_stacked-shaded">
+                    </lightning-datatable>
+                </div>
+            </template>
+            
+            <template if:false={hasOrders}>
+                <template if:false={isLoading}>
+                    <div class="slds-align_absolute-center slds-p-around_xx-large slds-text-color_weak slds-grid slds-grid_vertical" style="border: 2px dashed #cbd5e1; border-radius: 12px; min-height: 200px;">
+                        <lightning-icon icon-name="utility:open_folder" size="large" variant="warning" class="slds-m-bottom_small"></lightning-icon>
+                        <p class="slds-text-heading_small slds-text-title_bold">No Matching Orders Found</p>
+                        <p class="slds-text-color_weak slds-m-top_xx-small">Try updating your filters or search query.</p>
                     </div>
                 </template>
             </template>
-        </template>
-    </lightning-card>
+        </div>
+    </div>
+
+    <!-- Details and Quick Actions Modal -->
+    <template if:true={showModal}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container" style="max-width: 500px;">
+                <!-- Modal Header -->
+                <header class="slds-modal__header" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal} style="color: #64748b;">
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small" variant="neutral"></lightning-icon>
+                    </button>
+                    <h2 class="slds-text-heading_medium slds-text-title_bold" style="color: #0f172a;">Order Details Command</h2>
+                </header>
+
+                <!-- Modal Body -->
+                <div class="slds-modal__content slds-p-around_medium" style="position: relative;">
+                    <!-- Loading overlay for DML -->
+                    <template if:true={isSaving}>
+                        <lightning-spinner alternative-text="Updating order..." size="medium"></lightning-spinner>
+                    </template>
+
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                            <span class="slds-text-title_bold slds-text-color_weak" style="font-size: 0.8rem; text-transform: uppercase;">Order Name</span>
+                            <p class="slds-text-body_regular slds-m-top_xxx-small" style="font-weight: 600; color: #0f172a;">{selectedOrder.Name}</p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                            <span class="slds-text-title_bold slds-text-color_weak" style="font-size: 0.8rem; text-transform: uppercase;">Order Total</span>
+                            <p class="slds-text-body_regular slds-m-top_xxx-small" style="font-weight: 600; color: #0f172a;">
+                                <lightning-formatted-number value={selectedOrder.Total__c} format-style="currency" currency-code="USD"></lightning-formatted-number>
+                            </p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                            <span class="slds-text-title_bold slds-text-color_weak" style="font-size: 0.8rem; text-transform: uppercase;">Status</span>
+                            <p class="slds-m-top_xxx-small">
+                                <span class={selectedOrder.statusClass}>{selectedOrder.Status__c}</span>
+                            </p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                            <span class="slds-text-title_bold slds-text-color_weak" style="font-size: 0.8rem; text-transform: uppercase;">Date Placed</span>
+                            <p class="slds-text-body_regular slds-m-top_xxx-small" style="color: #334155;">
+                                <lightning-formatted-date-time value={selectedOrder.Order_Date__c} year="numeric" month="short" day="numeric" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <footer class="slds-modal__footer slds-grid slds-grid_align-spread" style="background: #f8fafc; border-top: 1px solid #e2e8f0;">
+                    <button class="slds-button slds-button_neutral" onclick={closeModal}>Close</button>
+                    
+                    <div>
+                        <!-- Conditional Action Dispatch -->
+                        <template if:true={isNewStatus}>
+                            <button class="slds-button slds-button_brand" onclick={handleStartPreparing}>Start Preparing</button>
+                        </template>
+                        <template if:true={isInProgressStatus}>
+                            <button class="slds-button slds-button_success" onclick={handleComplete} style="background: #10b981; border-color: #10b981; color: white;">Mark Completed</button>
+                        </template>
+                        <template if:true={canCancel}>
+                            <button class="slds-button slds-button_destructive slds-m-left_x-small" onclick={handleCancel}>Cancel Order</button>
+                        </template>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
 </template>

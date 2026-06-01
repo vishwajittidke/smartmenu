@@ -23,8 +23,9 @@ global with sharing class OrderApi {
         try {
             Map<String, Object> payload = (Map<String, Object>) JSON.deserializeUntyped(body);
 
-            // Input validation
-            String name = payload.containsKey('Name') ? (String) payload.get('Name') : null;
+            // Input validation — supports both uppercase (metadata) and lowercase (JavaScript client) keys
+            String name = payload.containsKey('Name') ? (String) payload.get('Name') : 
+                          (payload.containsKey('name') ? (String) payload.get('name') : null);
             if (String.isBlank(name)) {
                 res.statusCode = 400;
                 res.responseBody = Blob.valueOf('{"error":"Name is required"}');
@@ -32,18 +33,25 @@ global with sharing class OrderApi {
             }
 
             Decimal total = null;
+            Object val = null;
             if (payload.containsKey('Total__c')) {
-                Object val = payload.get('Total__c');
-                total = (val == null) ? null : Decimal.valueOf(String.valueOf(val));
-                if (total != null && total < 0) {
+                val = payload.get('Total__c');
+            } else if (payload.containsKey('total')) {
+                val = payload.get('total');
+            }
+            if (val != null) {
+                total = Decimal.valueOf(String.valueOf(val));
+                if (total < 0) {
                     res.statusCode = 400;
                     res.responseBody = Blob.valueOf('{"error":"Total cannot be negative"}');
                     return;
                 }
             }
 
-            String customerId = payload.containsKey('Customer__c') ? (String) payload.get('Customer__c') : null;
-            String restaurantId = payload.containsKey('Restaurant__c') ? (String) payload.get('Restaurant__c') : null;
+            String customerId = payload.containsKey('Customer__c') ? (String) payload.get('Customer__c') : 
+                                (payload.containsKey('customer') ? (String) payload.get('customer') : null);
+            String restaurantId = payload.containsKey('Restaurant__c') ? (String) payload.get('Restaurant__c') : 
+                                  (payload.containsKey('restaurant') ? (String) payload.get('restaurant') : null);
 
             // Delegate to Service Layer — ensures validation, events, and audit
             Order__c o = OrderService.createOrder(name, customerId, restaurantId);

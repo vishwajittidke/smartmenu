@@ -85,11 +85,11 @@
                 <p class="modal-description">Enter your Salesforce org details to connect the live dashboard.</p>
                 <div class="form-group">
                     <label for="orgUrl">Instance URL</label>
-                    <input type="url" id="orgUrl" placeholder="https://your-org.my.salesforce.com" value="">
+                    <input type="url" id="orgUrl" placeholder="https://your-org.my.salesforce.com" value="https://opensource2-dev-ed.develop.my.salesforce.com">
                 </div>
                 <div class="form-group">
                     <label for="accessToken">Access Token</label>
-                    <input type="password" id="accessToken" placeholder="Paste your session/access token">
+                    <input type="password" id="accessToken" placeholder="Paste your session/access token" value="">
                     <span class="form-hint">Run <code>sf org display -o vtidke56@gmail.com --json</code> to get your token</span>
                 </div>
                 <button class="btn-primary" id="btnSaveConnection">Connect & Load Data</button>
@@ -219,12 +219,45 @@
                 <h2 class="section-title">Customer Reviews</h2>
                 <p class="section-subtitle">What customers are saying</p>
             </div>
+            <div>
+                <button class="btn-create" id="btnNewReview">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add Review
+                </button>
+            </div>
         </div>
         <div class="reviews-container" id="reviewsContainer">
             <div class="skeleton-card"></div>
             <div class="skeleton-card"></div>
         </div>
     </section>
+
+    <!-- New Review Modal -->
+    <div class="modal-overlay" id="newReviewModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Write Customer Review</h2>
+                <button class="modal-close" id="newReviewClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="reviewRating">Rating (1 to 5)</label>
+                    <select id="reviewRating">
+                        <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                        <option value="4">⭐⭐⭐⭐ (4)</option>
+                        <option value="3">⭐⭐⭐ (3)</option>
+                        <option value="2">⭐⭐ (2)</option>
+                        <option value="1">⭐ (1)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reviewComment">Comment</label>
+                    <textarea id="reviewComment" rows="4" placeholder="Share your dining experience..." style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;padding:8px;font-family:inherit;resize:none;box-sizing:border-box;"></textarea>
+                </div>
+                <button class="btn-primary" id="btnSubmitReview">Submit Review</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Insights Section -->
     <section class="section" id="insights">

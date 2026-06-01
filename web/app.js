@@ -206,11 +206,30 @@ function updateHeroStats() {
 
 // ─── Data Loading ───────────────────────────────────────────────────────
 async function loadLiveData() {
+    const insights = await sfFetch('/insights/');
+    if (insights) {
+        state.insights = insights;
+        renderInsights(insights);
+    }
+
     const orders = await sfFetch('/orders/');
     if (orders) {
         state.orders = orders;
         renderOrders(orders);
     }
+
+    const menuItems = await sfFetch('/menu/');
+    if (menuItems) {
+        state.menuItems = menuItems;
+        renderMenu(menuItems);
+    }
+
+    const reviews = await sfFetch('/reviews/');
+    if (reviews) {
+        state.reviews = reviews;
+        renderReviews(reviews);
+    }
+
     updateHeroStats();
 }
 
@@ -319,6 +338,10 @@ document.addEventListener('DOMContentLoaded', () => {
         state.orgUrl = orgUrl;
         state.accessToken = token;
         state.connected = true;
+
+        localStorage.setItem('smartmenu_orgUrl', orgUrl);
+        localStorage.setItem('smartmenu_token', token);
+        localStorage.setItem('smartmenu_connected', 'true');
         
         document.getElementById('btnConnect').classList.add('connected');
         document.getElementById('btnConnect').innerHTML = '<span class="connect-dot"></span> Connected';
@@ -330,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Demo mode
     document.getElementById('btnDemoMode').addEventListener('click', () => {
         state.connected = false;
+        localStorage.setItem('smartmenu_connected', 'false');
         document.getElementById('btnConnect').classList.add('connected');
         document.getElementById('btnConnect').innerHTML = '<span class="connect-dot"></span> Demo Mode';
         modal.classList.remove('open');
@@ -435,19 +459,44 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!name) { showToast('Item name is required', 'error'); return; }
         if (price <= 0) { showToast('Price must be greater than 0', 'error'); return; }
         
-        // Add locally (demo mode or live — MenuService doesn't have a REST endpoint yet)
-        const newItem = {
-            Id: 'demo-' + Date.now(),
-            Name: name,
-            Description__c: desc,
-            Price__c: price,
-            Category__c: category,
-            Is_Available__c: true
-        };
-        state.menuItems.unshift(newItem);
-        renderMenu(state.menuItems);
-        updateHeroStats();
-        showToast(`✓ "${name}" added to menu!`);
+        if (state.connected) {
+            try {
+                const restaurantId = state.insights.restaurantId;
+                const res = await fetch(`${state.orgUrl}/services/apexrest/menu/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${state.accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        description: desc,
+                        price,
+                        category,
+                        restaurantId
+                    })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                showToast(`✓ Menu item "${name}" created in Salesforce!`);
+                await loadLiveData();
+            } catch (e) {
+                showToast('Failed to create menu item: ' + e.message, 'error');
+            }
+        } else {
+            // Demo mode — add locally
+            const newItem = {
+                Id: 'demo-' + Date.now(),
+                Name: name,
+                Description__c: desc,
+                Price__c: price,
+                Category__c: category,
+                Is_Available__c: true
+            };
+            state.menuItems.unshift(newItem);
+            renderMenu(state.menuItems);
+            updateHeroStats();
+            showToast(`✓ "${name}" added to menu!`);
+        }
         
         // Clear form & close
         document.getElementById('menuItemName').value = '';
@@ -455,6 +504,68 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('menuItemPrice').value = '';
         document.getElementById('menuItemCategory').value = 'Appetizer';
         menuModal.classList.remove('open');
+    });
+
+    // ─── New Review Modal ───────────────────────────────────────────────
+    const reviewModal = document.getElementById('newReviewModal');
+    document.getElementById('btnNewReview').addEventListener('click', () => reviewModal.classList.add('open'));
+    document.getElementById('newReviewClose').addEventListener('click', () => reviewModal.classList.remove('open'));
+    reviewModal.addEventListener('click', (e) => { if (e.target === reviewModal) reviewModal.classList.remove('open'); });
+
+    document.getElementById('btnSubmitReview').addEventListener('click', async () => {
+        const rating = parseInt(document.getElementById('reviewRating').value) || 5;
+        const comment = document.getElementById('reviewComment').value.trim();
+
+        if (!comment) { showToast('Comment is required', 'error'); return; }
+
+        if (state.connected) {
+            try {
+                const restaurantId = state.insights.restaurantId;
+                const res = await fetch(`${state.orgUrl}/services/apexrest/reviews/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${state.accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        rating,
+                        comment,
+                        restaurantId
+                    })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                showToast(`✓ Review submitted to Salesforce!`);
+                await loadLiveData();
+            } catch (e) {
+                showToast('Failed to submit review: ' + e.message, 'error');
+            }
+        } else {
+            // Demo mode
+            const newReview = {
+                Id: 'demo-' + Date.now(),
+                Rating__c: rating,
+                Comment__c: comment,
+                CreatedDate: new Date().toISOString(),
+                Customer__r: { FirstName: 'Demo', LastName: 'Reviewer' }
+            };
+            state.reviews.unshift(newReview);
+            renderReviews(state.reviews);
+            
+            // Recalculate average rating in insights
+            const totalReviews = (state.insights.reviewSummary?.totalReviews || 0) + 1;
+            const currentAvg = state.insights.reviewSummary?.averageRating || 4.5;
+            const averageRating = ((currentAvg * (totalReviews - 1)) + rating) / totalReviews;
+            state.insights.reviewSummary = { averageRating, totalReviews };
+
+            renderInsights(state.insights);
+            updateHeroStats();
+            showToast(`✓ Review submitted successfully!`);
+        }
+
+        // Clear form & close
+        document.getElementById('reviewComment').value = '';
+        document.getElementById('reviewRating').value = '5';
+        reviewModal.classList.remove('open');
     });
     
     // Chat widget
@@ -493,8 +604,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') sendMessage();
     });
     
-    // Auto-load demo data on start
-    loadDemoData();
+    // Auto-load connection from localStorage if present
+    const savedOrgUrl = localStorage.getItem('smartmenu_orgUrl') || document.getElementById('orgUrl').value.trim();
+    const savedToken = localStorage.getItem('smartmenu_token') || document.getElementById('accessToken').value.trim();
+    const savedConnected = localStorage.getItem('smartmenu_connected') !== 'false';
+
+    if (savedOrgUrl && savedToken && savedConnected) {
+        state.orgUrl = savedOrgUrl;
+        state.accessToken = savedToken;
+        state.connected = true;
+
+        document.getElementById('btnConnect').classList.add('connected');
+        document.getElementById('btnConnect').innerHTML = '<span class="connect-dot"></span> Connected';
+        
+        loadLiveData();
+    } else {
+        loadDemoData();
+    }
     
     // Navbar scroll effect
     window.addEventListener('scroll', () => {

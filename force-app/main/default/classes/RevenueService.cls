@@ -5,7 +5,15 @@ public with sharing class RevenueService {
 
     @AuraEnabled(cacheable=true)
     public static Map<String, Object> getInsights(Id restaurantId) {
+        if (restaurantId == null) {
+            Account acc = AccountSelector.selectFirstRestaurant();
+            if (acc != null) {
+                restaurantId = acc.Id;
+            }
+        }
+
         Map<String, Object> insights = new Map<String, Object>();
+        insights.put('restaurantId', restaurantId);
 
         // Total revenue + order count
         AggregateResult[] revenueAgg = OrderSelector.selectRevenueByRestaurant(restaurantId);

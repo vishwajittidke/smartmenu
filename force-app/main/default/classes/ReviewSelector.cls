@@ -10,7 +10,6 @@ public with sharing class ReviewSelector {
                    Customer__r.FirstName, Customer__r.LastName, CreatedDate
             FROM Review__c
             WHERE Restaurant__c = :restaurantId
-            WITH SECURITY_ENFORCED
             ORDER BY CreatedDate DESC
             LIMIT 50
         ];
@@ -36,9 +35,18 @@ public with sharing class ReviewSelector {
                    Order__c, CreatedDate
             FROM Review__c
             WHERE Id = :reviewId
-            WITH SECURITY_ENFORCED
             LIMIT 1
         ];
         return reviews.isEmpty() ? null : reviews[0];
+    }
+
+    public static List<Review__c> selectRecentReviews(Integer limitCount) {
+        return [
+            SELECT Id, Name, Rating__c, Comment__c, Customer__c,
+                   Customer__r.FirstName, Customer__r.LastName, CreatedDate
+            FROM Review__c
+            ORDER BY CreatedDate DESC
+            LIMIT :limitCount
+        ];
     }
 }

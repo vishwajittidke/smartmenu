@@ -67,7 +67,6 @@ public with sharing class MenuSelector {
             SELECT Id, Name, Description__c, Price__c, Category__c, Is_Available__c, Restaurant__c
             FROM Menu_Item__c
             WHERE Is_Available__c = true
-            WITH SECURITY_ENFORCED
             ORDER BY Category__c, Name
             LIMIT :limitCount
         ];

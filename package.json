@@ -7,7 +7,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint force-app/main/default/lwc",
-    "format": "prettier --write \"force-app/**/*.{js,html,css}\""
+    "format": "prettier --write \"force-app/**/*.{js,html,css}\"",
+    "dev": "npx -y serve web -l 3000"
   },
   "devDependencies": {
     "@salesforce/sfdx-lwc-jest": "^5.0.0",

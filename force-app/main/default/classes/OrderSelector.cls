@@ -6,7 +6,7 @@ public with sharing class OrderSelector {
 
     public static List<Order__c> selectRecentOrders(Integer limitCount) {
         return [
-            SELECT Id, Name, Status__c, Total__c, Customer__c, Restaurant__c, Order_Date__c
+            SELECT Id, Name, Status__c, Total__c, Customer__c, Restaurant__c, Order_Date__c, CreatedDate
             FROM Order__c
             ORDER BY CreatedDate DESC
             LIMIT :limitCount
@@ -72,7 +72,6 @@ public with sharing class OrderSelector {
             SELECT Order__c, Quantity__c, Unit_Price__c
             FROM Order_Item__c
             WHERE Order__c IN :orderIds
-            WITH SECURITY_ENFORCED
         ];
     }
 }
