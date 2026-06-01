@@ -48,6 +48,20 @@ const DEMO = {
     }
 };
 
+// ─── Toast Notification ─────────────────────────────────────────────
+function showToast(message, type = 'success') {
+    let toast = document.querySelector('.toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.className = `toast ${type}`;
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
 // ─── API Helpers ────────────────────────────────────────────────────────
 async function sfFetch(endpoint) {
     if (!state.connected) return null;
@@ -58,6 +72,15 @@ async function sfFetch(endpoint) {
                 'Content-Type': 'application/json'
             }
         });
+        if (res.status === 401) {
+            showToast('Salesforce session expired. Please reconnect.', 'error');
+            state.connected = false;
+            localStorage.setItem('smartmenu_connected', 'false');
+            document.getElementById('btnConnect').classList.remove('connected');
+            document.getElementById('btnConnect').innerHTML = 'Connect Org';
+            loadDemoData();
+            return null;
+        }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return await res.json();
     } catch (e) {
@@ -369,19 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // ─── Toast Notification ─────────────────────────────────────────────
-    function showToast(message, type = 'success') {
-        let toast = document.querySelector('.toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.className = 'toast';
-            document.body.appendChild(toast);
-        }
-        toast.textContent = message;
-        toast.className = `toast ${type}`;
-        requestAnimationFrame(() => toast.classList.add('show'));
-        setTimeout(() => toast.classList.remove('show'), 3000);
-    }
+    // Toast Notification is now global
     
     // ─── New Order Modal ────────────────────────────────────────────────
     const orderModal = document.getElementById('newOrderModal');
