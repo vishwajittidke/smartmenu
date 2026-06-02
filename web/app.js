@@ -504,6 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({
                         name,
                         restaurant: state.insights.restaurantId,
+                        customer: customer,
                         items: selectedItems
                     })
                 });

@@ -48,13 +48,19 @@ global with sharing class OrderApi {
                 }
             }
 
-            String customerId = payload.containsKey('Customer__c') ? (String) payload.get('Customer__c') : 
-                                (payload.containsKey('customer') ? (String) payload.get('customer') : null);
+            String customerInput = payload.containsKey('Customer__c') ? (String) payload.get('Customer__c') : 
+                                   (payload.containsKey('customer') ? (String) payload.get('customer') : null);
+            
+            Id resolvedContactId = null;
+            if (String.isNotBlank(customerInput)) {
+                resolvedContactId = resolveOrCreateContact(customerInput);
+            }
+
             String restaurantId = payload.containsKey('Restaurant__c') ? (String) payload.get('Restaurant__c') : 
                                   (payload.containsKey('restaurant') ? (String) payload.get('restaurant') : null);
 
             // Delegate to Service Layer — ensures validation, events, and audit
-            Order__c o = OrderService.createOrder(name, customerId, restaurantId);
+            Order__c o = OrderService.createOrder(name, resolvedContactId, restaurantId);
             
             // Handle child order items if provided, otherwise set flat total
             List<Object> itemsList = payload.containsKey('items') ? (List<Object>) payload.get('items') : null;
@@ -94,6 +100,51 @@ global with sharing class OrderApi {
             String msg = e.getMessage() == null ? 'Unknown error' : String.escapeSingleQuotes(e.getMessage());
             res.responseBody = Blob.valueOf('{"error":"' + msg + '"}');
         }
+    }
+
+    private static Id resolveOrCreateContact(String customerName) {
+        if (String.isBlank(customerName)) return null;
+        
+        // Check if it's already a valid Salesforce ID for Contact
+        if (customerName.length() >= 15 && customerName.startsWith('003')) {
+            try {
+                Id cid = (Id)customerName;
+                return cid;
+            } catch (Exception e) {
+                // Not a valid ID, fall back to name search
+            }
+        }
+        
+        // Split name into first and last
+        String firstName = '';
+        String lastName = customerName.trim();
+        Integer spaceIdx = customerName.indexOf(' ');
+        if (spaceIdx != -1) {
+            firstName = customerName.substring(0, spaceIdx).trim();
+            lastName = customerName.substring(spaceIdx + 1).trim();
+        }
+        if (String.isBlank(lastName)) {
+            lastName = 'Customer';
+        }
+        
+        // Look up by name
+        List<Contact> contacts = [
+            SELECT Id 
+            FROM Contact 
+            WHERE FirstName = :firstName AND LastName = :lastName 
+            LIMIT 1
+        ];
+        if (!contacts.isEmpty()) {
+            return contacts[0].Id;
+        }
+        
+        // Create new Contact
+        Contact c = new Contact(
+            FirstName = firstName,
+            LastName = lastName
+        );
+        insert c;
+        return c.Id;
     }
 }
 
