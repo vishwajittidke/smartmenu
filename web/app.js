@@ -628,12 +628,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.innerHTML = '<p style="color:#aaa;font-size:0.9rem;margin:0;">No menu items available. Add some menu items first!</p>';
             } else {
                 container.innerHTML = state.menuItems.map(item => `
-                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.9rem;gap:8px;width:100%;box-sizing:border-box;">
-                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;margin:0;color:#fff;">
+                    <div class="order-item-row">
+                        <label class="checkbox-container" style="flex:1;font-weight:normal;text-transform:none;letter-spacing:normal;color:#fff;">
                             <input type="checkbox" class="order-item-checkbox" data-id="${item.Id}" data-price="${item.Price__c}">
-                            <span>${item.Name} (${formatCurrency(item.Price__c)})</span>
+                            <span class="checkmark"></span>
+                            <span>${item.Name} <span style="color:var(--text-muted);font-size:0.8rem;margin-left:4px;">(${formatCurrency(item.Price__c)})</span></span>
                         </label>
-                        <input type="number" class="order-item-qty" data-id="${item.Id}" value="1" min="1" style="width:50px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:#fff;padding:2px 4px;font-size:0.85rem;" disabled>
+                        <input type="number" class="order-item-qty" data-id="${item.Id}" value="1" min="1" style="width:55px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:#fff;padding:4px 8px;font-size:0.85rem;text-align:center;" disabled>
                     </div>
                 `).join('');
                 
