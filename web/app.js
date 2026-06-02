@@ -455,7 +455,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         // Reset fields
-        document.getElementById('orderName').value = '';
         document.getElementById('orderCustomer').value = '';
         document.getElementById('orderTotal').value = '0.00';
         document.getElementById('orderStatus').value = 'New';
@@ -467,12 +466,15 @@ document.addEventListener('DOMContentLoaded', () => {
     orderModal.addEventListener('click', (e) => { if (e.target === orderModal) orderModal.classList.remove('open'); });
     
     document.getElementById('btnSubmitOrder').addEventListener('click', async () => {
-        const name = document.getElementById('orderName').value.trim();
+        // Automatically generate a unique, clean, timestamped order name
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const dateStamp = now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '-' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
+        const name = 'ORD-' + dateStamp;
+
         const customer = document.getElementById('orderCustomer').value.trim();
         const total = parseFloat(document.getElementById('orderTotal').value) || 0;
         const status = document.getElementById('orderStatus').value;
-        
-        if (!name) { showToast('Order name is required', 'error'); return; }
         
         // Build items payload
         const selectedItems = [];
