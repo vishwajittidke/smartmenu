@@ -42,10 +42,23 @@ function showToast(message, type = 'success') {
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
+// ─── Real-Time Integration Logger ─────────────────────────────────────
+function logEvent(message, type = 'api-info') {
+    const body = document.getElementById('consoleBody');
+    if (!body) return;
+    const line = document.createElement('div');
+    line.className = `console-log-line ${type}`;
+    const time = new Date().toTimeString().split(' ')[0];
+    line.innerHTML = `<span class="timestamp">[${time}]</span> <span class="message">${message}</span>`;
+    body.appendChild(line);
+    body.scrollTop = body.scrollHeight;
+}
+
 // ─── API Helpers ────────────────────────────────────────────────────────
 async function sfFetch(endpoint) {
     if (!state.connected) return null;
     try {
+        logEvent(`[API GET] Querying Apex REST resource: /services/apexrest${endpoint}`, 'api-info');
         const res = await fetch(`${state.orgUrl}/services/apexrest${endpoint}`, {
             headers: {
                 'Authorization': `Bearer ${state.accessToken}`,
@@ -53,6 +66,7 @@ async function sfFetch(endpoint) {
             }
         });
         if (res.status === 401) {
+            logEvent(`[API 401] Access Token Expired or Invalid! Session terminated.`, 'api-error');
             showToast('Salesforce session expired. Please reconnect.', 'error');
             state.connected = false;
             localStorage.setItem('smartmenu_connected', 'false');
@@ -61,9 +75,15 @@ async function sfFetch(endpoint) {
             loadDemoData();
             return null;
         }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
+        if (!res.ok) {
+            logEvent(`[API ERROR] HTTP Failure ${res.status} returned for ${endpoint}`, 'api-error');
+            throw new Error(`HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        logEvent(`[API SUCCESS] Retrieved telemetry payload successfully for ${endpoint}`, 'api-success');
+        return data;
     } catch (e) {
+        logEvent(`[API EXCEPTION] Network request failed for ${endpoint}: ${e.message}`, 'api-error');
         console.error('API Error:', e);
         return null;
     }
@@ -233,6 +253,7 @@ function updateHeroStats() {
 async function loadLiveData() {
     if (state.isFetching) return;
     state.isFetching = true;
+    logEvent(`[🔄 BACKGROUND POLL] Initiating background telemetry sync...`, 'system');
     try {
         const insights = await sfFetch('/insights/');
         if (insights) {
@@ -265,6 +286,7 @@ async function loadLiveData() {
 }
 
 function loadDemoData() {
+    logEvent(`[📊 DEMO DATA] Rendering local offline demo dataset.`, 'system');
     state.orders = DEMO.orders;
     state.menuItems = DEMO.menuItems;
     state.reviews = DEMO.reviews;
@@ -366,6 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
+        logEvent(`[PLUG] Connecting to Salesforce Instance: ${orgUrl}...`, 'system');
         state.orgUrl = orgUrl;
         state.accessToken = token;
         state.connected = true;
@@ -378,11 +401,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btnConnect').innerHTML = '<span class="connect-dot"></span> Connected';
         modal.classList.remove('open');
         
+        logEvent(`[SUCCESS] Credentials saved! Establishing dynamic REST session.`, 'api-success');
         await loadLiveData();
     });
     
     // Demo mode
     document.getElementById('btnDemoMode').addEventListener('click', () => {
+        logEvent(`[DEMO] Switched to Offline Demo Mode. Sandbox telemetry simulates live data.`, 'system');
         state.connected = false;
         localStorage.setItem('smartmenu_connected', 'false');
         document.getElementById('btnConnect').classList.add('connected');
@@ -489,12 +514,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if (selectedItems.length === 0) {
+            logEvent(`[ACTION REJECTED] Cannot place order: Please select at least one menu item.`, 'user-action');
             showToast('Please select at least one menu item', 'error');
             return;
         }
-        
+        logEvent(`[ORDER ACTION] Submitting new order payload. Generating unique key: ${name} (Customer: "${customer || '—'}")`, 'user-action');
+
         if (state.connected) {
             try {
+                logEvent(`[API POST] Sending payload to REST endpoint /services/apexrest/orders/...`, 'api-info');
                 const res = await fetch(`${state.orgUrl}/services/apexrest/orders/`, {
                     method: 'POST',
                     headers: {
@@ -508,10 +536,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         items: selectedItems
                     })
                 });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                if (!res.ok) {
+                    logEvent(`[API ERROR] REST order creation failed with status ${res.status}`, 'api-error');
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                const resData = await res.json();
+                logEvent(`[SUCCESS] Order created successfully! Salesforce resolved Customer Contact, calculated pricing, and stamped child line items.`, 'api-success');
                 showToast(`✓ Order "${name}" created with child items in Salesforce!`);
                 await loadLiveData();
             } catch (e) {
+                logEvent(`[EXCEPTION] Order creation failed: ${e.message}`, 'api-error');
                 showToast('Failed to create order: ' + e.message, 'error');
             }
         } else {
@@ -722,6 +756,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('navbar').style.background = 
             window.scrollY > 50 ? 'rgba(10, 10, 15, 0.95)' : 'rgba(10, 10, 15, 0.8)';
     });
+
+    // Real-Time Console Drawer Toggle & Clear
+    const consoleDrawer = document.getElementById('integrationConsole');
+    const consoleToggle = document.getElementById('consoleToggle');
+    const consoleClear = document.getElementById('btnConsoleClear');
+
+    if (consoleToggle && consoleDrawer) {
+        consoleToggle.addEventListener('click', () => {
+            consoleDrawer.classList.toggle('expanded');
+            if (consoleDrawer.classList.contains('expanded')) {
+                consoleToggle.textContent = '▼ Collapse Console Logs';
+            } else {
+                consoleToggle.textContent = '▲ Expand Console Logs';
+            }
+        });
+    }
+
+    if (consoleClear) {
+        consoleClear.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const body = document.getElementById('consoleBody');
+            if (body) {
+                body.innerHTML = `<div class="console-log-line system"><span class="timestamp">[SYSTEM]</span><span class="message">Console cleared. Monitoring events...</span></div>`;
+            }
+        });
+    }
 
     // Background auto-refresh polling: fetch records dynamically without manual page refresh every 8 seconds
     setInterval(async () => {

@@ -1245,3 +1245,101 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.2);
 }
+
+/* ─── Real-Time Integration Console ─────────────────────────────────── */
+.integration-console {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 1000px;
+    background: rgba(10, 10, 18, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    font-family: 'Courier New', Courier, monospace;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 40px; /* Collapsed */
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.integration-console.expanded {
+    height: 250px; /* Expanded */
+}
+
+.console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    height: 40px;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+.console-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.console-toggle {
+    background: none;
+    border: none;
+    color: #00cec9;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-console-clear {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.btn-console-clear:hover {
+    color: #d63031;
+}
+
+.console-body {
+    padding: 12px 16px;
+    height: calc(100% - 40px);
+    overflow-y: auto;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+.console-log-line {
+    display: flex;
+    gap: 8px;
+    border-left: 2px solid transparent;
+    padding-left: 6px;
+}
+
+.console-log-line.system { border-color: #6c5ce7; color: #a29bfe; }
+.console-log-line.api-info { border-color: #0984e3; color: #74b9ff; }
+.console-log-line.api-success { border-color: #00b894; color: #55efc4; }
+.console-log-line.api-error { border-color: #d63031; color: #ff7675; }
+.console-log-line.user-action { border-color: #fdcb6e; color: #ffeaa7; }
+
+.console-log-line .timestamp { color: rgba(255, 255, 255, 0.3); }
+
