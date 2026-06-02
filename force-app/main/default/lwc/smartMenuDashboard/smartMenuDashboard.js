@@ -6,7 +6,9 @@ import getRecentOrders from '@salesforce/apex/OrderService.getRecentOrders';
 import updateOrderStatus from '@salesforce/apex/OrderService.updateOrderStatus';
 
 const COLUMNS = [
+    { label: 'Order ID', fieldName: 'Id', type: 'text', sortable: true },
     { label: 'Order Name', fieldName: 'Name', type: 'text', sortable: true },
+    { label: 'Customer Name', fieldName: 'customerName', type: 'text', sortable: true },
     { label: 'Status', fieldName: 'Status__c', type: 'text', cellAttributes: { class: { fieldName: 'statusClass' } } },
     { label: 'Total Price', fieldName: 'Total__c', type: 'currency', typeAttributes: { currencyCode: 'USD' } },
     { label: 'Order Date', fieldName: 'Order_Date__c', type: 'date', typeAttributes: { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' } },
@@ -62,6 +64,7 @@ export default class SmartMenuDashboard extends LightningElement {
 
                 return {
                     ...order,
+                    customerName: order.Customer__r ? order.Customer__r.Name : '—',
                     statusClass: `slds-text-title_bold ${statusClass}`
                 };
             });
