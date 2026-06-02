@@ -11,4 +11,16 @@
     <objectPermissions>
         <object>Menu_Item__c</object><allowCreate>false</allowCreate><allowRead>true</allowRead><allowEdit>false</allowEdit><allowDelete>false</allowDelete><viewAllRecords>false</viewAllRecords><modifyAllRecords>false</modifyAllRecords>
     </objectPermissions>
+    <tabSettings>
+        <tab>Order__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Menu_Item__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Review__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
 </PermissionSet>

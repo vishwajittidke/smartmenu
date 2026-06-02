@@ -17,4 +17,12 @@
     <objectPermissions>
         <object>Application_Log__c</object><allowCreate>true</allowCreate><allowRead>true</allowRead><allowEdit>false</allowEdit><allowDelete>false</allowDelete><viewAllRecords>false</viewAllRecords><modifyAllRecords>false</modifyAllRecords>
     </objectPermissions>
+    <tabSettings>
+        <tab>Order__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AI_Conversation__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
 </PermissionSet>

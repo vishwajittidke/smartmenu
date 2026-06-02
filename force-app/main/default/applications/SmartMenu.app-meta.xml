@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>SmartMenu</label>
+    <formFactors>Large</formFactors>
+    <formFactors>Small</formFactors>
+    <navType>Standard</navType>
+    <uiType>Lightning</uiType>
+    <tabs>standard-home</tabs>
+    <tabs>Order__c</tabs>
+    <tabs>Menu_Item__c</tabs>
+    <tabs>Review__c</tabs>
+    <tabs>Notification__c</tabs>
+    <tabs>AI_Conversation__c</tabs>
+    <tabs>standard-Account</tabs>
+    <tabs>standard-Contact</tabs>
+    <tabs>standard-report</tabs>
+    <tabs>standard-Dashboard</tabs>
+</CustomApplication>
