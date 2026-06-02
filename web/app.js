@@ -16,15 +16,104 @@ const state = {
 
 // ─── Demo Data ──────────────────────────────────────────────────────────
 const DEMO = {
-    orders: [],
-    menuItems: [],
-    reviews: [],
+    orders: [
+        {
+            Id: 'demo-100001',
+            Name: 'ORD-20260602-120001',
+            Status__c: 'Completed',
+            Total__c: 38.97,
+            Customer__c: 'Jane Doe',
+            CreatedDate: new Date(Date.now() - 3600000 * 2).toISOString()
+        },
+        {
+            Id: 'demo-100002',
+            Name: 'ORD-20260602-121522',
+            Status__c: 'In Progress',
+            Total__c: 25.98,
+            Customer__c: 'Alex Rivera',
+            CreatedDate: new Date(Date.now() - 3600000 * 0.5).toISOString()
+        },
+        {
+            Id: 'demo-100003',
+            Name: 'ORD-20260602-124509',
+            Status__c: 'New',
+            Total__c: 12.99,
+            Customer__c: 'Marcus Sterling',
+            CreatedDate: new Date().toISOString()
+        }
+    ],
+    menuItems: [
+        {
+            Id: 'demo-m1',
+            Name: 'Paneer Tikka Wrap',
+            Price__c: 12.99,
+            Category__c: 'Main Course',
+            Description__c: 'Spiced cottage cheese cubes marinated in yogurt, tandoor-grilled with peppers and wrapped in a warm tortilla with mint chutney.',
+            Is_Available__c: true
+        },
+        {
+            Id: 'demo-m2',
+            Name: 'Truffle Mushroom Pasta',
+            Price__c: 18.99,
+            Category__c: 'Main Course',
+            Description__c: 'Artisanal pasta tossed in an exquisite black truffle cream sauce with sautéed wild mushrooms and shaved parmesan.',
+            Is_Available__c: true
+        },
+        {
+            Id: 'demo-m3',
+            Name: 'Hummus & Pita Platter',
+            Price__c: 9.99,
+            Category__c: 'Appetizer',
+            Description__c: 'Creamy house-made chickpeas tahini spread topped with organic olive oil, served with warm tandoori-baked pita bread.',
+            Is_Available__c: true
+        },
+        {
+            Id: 'demo-m4',
+            Name: 'Crispy Falafel Salad',
+            Price__c: 11.99,
+            Category__c: 'Appetizer',
+            Description__c: 'Deep-fried spiced herb chickpea balls served over mixed salad greens, cucumber, cherry tomatoes, and tahini drizzle.',
+            Is_Available__c: true
+        },
+        {
+            Id: 'demo-m5',
+            Name: 'Mango Coconut Panna Cotta',
+            Price__c: 7.99,
+            Category__c: 'Dessert',
+            Description__c: 'Silky eggless vanilla panna cotta infused with fresh Alphonso mango purée and topped with toasted coconut flakes.',
+            Is_Available__c: true
+        },
+        {
+            Id: 'demo-m6',
+            Name: 'Fresh Ginger Lemonade',
+            Price__c: 4.50,
+            Category__c: 'Beverage',
+            Description__c: 'Zesty and refreshing house-brewed lemonade with freshly squeezed ginger, fresh mint leaves, and organic honey.',
+            Is_Available__c: true
+        }
+    ],
+    reviews: [
+        {
+            Id: 'demo-r1',
+            Rating__c: 5.0,
+            Comment__c: 'The Truffle Mushroom Pasta is absolutely out of this world! Perfect balance of rich earthy flavors.',
+            CreatedDate: new Date(Date.now() - 3600000 * 3).toISOString(),
+            Customer__r: { FirstName: 'Jane', LastName: 'Doe' }
+        },
+        {
+            Id: 'demo-r2',
+            Rating__c: 4.5,
+            Comment__c: 'Extremely fresh Paneer Tikka Wrap! The mint chutney adds an amazing kick. Will definitely order again.',
+            CreatedDate: new Date(Date.now() - 3600000 * 1.5).toISOString(),
+            Customer__r: { FirstName: 'Alex', LastName: 'Rivera' }
+        }
+    ],
     insights: {
-        totalRevenue: 0.00,
-        completedOrders: 0,
-        averageOrderValue: 0.00,
-        reviewSummary: { averageRating: 0.0, totalReviews: 0 },
-        ordersByStatus: { 'New': 0, 'In Progress': 0, 'Completed': 0, 'Cancelled': 0 }
+        totalRevenue: 77.94,
+        completedOrders: 1,
+        averageOrderValue: 25.98,
+        reviewSummary: { averageRating: 4.75, totalReviews: 2 },
+        ordersByStatus: { 'New': 1, 'In Progress': 1, 'Completed': 1, 'Cancelled': 0 }
     }
 };
 

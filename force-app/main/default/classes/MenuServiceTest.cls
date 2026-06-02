@@ -5,7 +5,7 @@ private class MenuServiceTest {
         Account restaurant = TestDataFactory.createRestaurant('Menu Test');
 
         Test.startTest();
-        Menu_Item__c item = MenuService.createMenuItem('Burger', 'Classic beef burger', 15.99, 'Main Course', restaurant.Id);
+        Menu_Item__c item = MenuService.createMenuItem('Paneer Tikka Wrap', 'Spiced paneer cubes grilled with bell peppers', 12.99, 'Main Course', restaurant.Id);
         Test.stopTest();
 
         System.assertNotEquals(null, item.Id, 'Menu item should be created');

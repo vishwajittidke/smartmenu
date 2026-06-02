@@ -12,7 +12,7 @@ Order__c testOrder = OrderService.createOrder('Demo Order', customer.Id, restaur
 System.debug('✓ Order created: ' + testOrder.Id + ' | ' + testOrder.Name);
 
 // Create a menu item via MenuService
-Menu_Item__c menuItem = MenuService.createMenuItem('Demo Burger', 'Juicy beef patty', 14.99, 'Main Course', restaurant.Id);
+Menu_Item__c menuItem = MenuService.createMenuItem('Paneer Tikka Wrap', 'Spiced paneer cubes grilled with bell peppers and wrapped in a warm tortilla with mint chutney', 12.99, 'Main Course', restaurant.Id);
 System.debug('✓ Menu item created: ' + menuItem.Name + ' | $' + menuItem.Price__c);
 
 // Test the Agentforce assistant
