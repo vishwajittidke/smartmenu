@@ -6,7 +6,7 @@ import getRecentOrders from '@salesforce/apex/OrderService.getRecentOrders';
 import updateOrderStatus from '@salesforce/apex/OrderService.updateOrderStatus';
 
 const COLUMNS = [
-    { label: 'Order ID', fieldName: 'Id', type: 'text', sortable: true },
+    { label: 'Order ID', fieldName: 'formattedOrderId', type: 'text', sortable: true },
     { label: 'Order Name', fieldName: 'Name', type: 'text', sortable: true },
     { label: 'Customer Name', fieldName: 'customerName', type: 'text', sortable: true },
     { label: 'Status', fieldName: 'Status__c', type: 'text', cellAttributes: { class: { fieldName: 'statusClass' } } },
@@ -62,8 +62,18 @@ export default class SmartMenuDashboard extends LightningElement {
                 else if (order.Status__c === 'Completed') statusClass = 'status-completed';
                 else if (order.Status__c === 'Cancelled') statusClass = 'status-cancelled';
 
+                // Deterministic short Order ID in ORD-000000 format based on Salesforce ID hash
+                let hash = 0;
+                const recordId = order.Id || '';
+                for (let i = 0; i < recordId.length; i++) {
+                    hash = (hash << 5) - hash + recordId.charCodeAt(i);
+                    hash |= 0;
+                }
+                const formattedOrderId = 'ORD-' + String(Math.abs(hash) % 1000000).padStart(6, '0');
+
                 return {
                     ...order,
+                    formattedOrderId: formattedOrderId,
                     customerName: order.Customer__r ? order.Customer__r.Name : '—',
                     statusClass: `slds-text-title_bold ${statusClass}`
                 };
