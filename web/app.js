@@ -11,7 +11,8 @@ const state = {
     menuItems: [],
     reviews: [],
     insights: {},
-    isFetching: false
+    isFetching: false,
+    chatSessionId: 'session_' + Math.random().toString(36).substring(2, 11)
 };
 
 // ─── Demo Data ──────────────────────────────────────────────────────────
@@ -392,12 +393,48 @@ function loadDemoData() {
 function getBotResponse(message) {
     const msg = message.toLowerCase();
     
+    // Greetings
+    if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey') || msg.includes('hola') || msg.includes('greetings')) {
+        return 'Hello! Welcome to SmartMenu. I am your virtual culinary assistant. 🍽️ How can I help you today? You can ask me about our menu, check your order status, or query restaurant analytics!';
+    }
+    
+    // Thanks
+    if (msg.includes('thank you') || msg.includes('thanks') || msg.includes('appreciate it')) {
+        return 'You\'re very welcome! If you need anything else, feel free to ask. Enjoy your meal! 😊';
+    }
+    
     if (msg.includes('order') && (msg.includes('status') || msg.includes('track') || msg.includes('where'))) {
+        // Try to extract order number from input
+        let orderName = null;
+        const ordMatch = msg.match(/ord-\d{8}-\d{6}/) || msg.match(/ord-\d+/);
+        if (ordMatch) {
+            orderName = ordMatch[0].toUpperCase();
+        }
+        
+        if (orderName) {
+            const matchedOrder = state.orders.find(o => o.Name === orderName || getFormattedOrderId(o.Id) === orderName);
+            if (matchedOrder) {
+                const customerName = matchedOrder.Customer__r ? matchedOrder.Customer__r.Name : (matchedOrder.Customer__c || 'Guest');
+                return `Order Details for ${orderName}:\n• Customer: ${customerName}\n• Status: ${matchedOrder.Status__c}\n• Total: ${formatCurrency(matchedOrder.Total__c)}\n• Date: ${formatDate(matchedOrder.CreatedDate)}`;
+            }
+            return `I couldn't locate any order with the reference "${orderName}" in our system.`;
+        }
+        
         const activeOrders = state.orders.filter(o => o.Status__c !== 'Completed' && o.Status__c !== 'Cancelled');
         if (activeOrders.length) {
-            return `You have ${activeOrders.length} active order(s):\n${activeOrders.map(o => `• ${o.Name} — ${o.Status__c} (${formatCurrency(o.Total__c)})`).join('\n')}`;
+            return `You have ${activeOrders.length} active order(s):\n${activeOrders.map(o => `• ${getFormattedOrderId(o.Id)} — ${o.Status__c} (${formatCurrency(o.Total__c)})`).join('\n')}`;
         }
         return 'No active orders found. All orders are completed or cancelled.';
+    }
+    
+    // Specific Menu Item or category Search
+    const dishKeywords = ['paneer', 'wrap', 'pasta', 'salad', 'falafel', 'dessert', 'drink', 'beverage', 'lemonade', 'hummus', 'pita', 'panna', 'cotta'];
+    const matchedKeyword = dishKeywords.find(k => msg.includes(k));
+    if (matchedKeyword) {
+        const matches = state.menuItems.filter(m => m.Name.toLowerCase().includes(matchedKeyword) || m.Category__c.toLowerCase().includes(matchedKeyword));
+        if (matches.length) {
+            return `Yes! We found the following matches on our menu:\n${matches.map(m => `• ${m.Name} — ${formatCurrency(m.Price__c)} (${m.Category__c})`).join('\n')}`;
+        }
     }
     
     if (msg.includes('menu') || msg.includes('recommend') || msg.includes('food') || msg.includes('eat')) {
@@ -406,21 +443,22 @@ function getBotResponse(message) {
         return `Here are our top recommendations:\n${top3.map(m => `• ${m.Name} — ${formatCurrency(m.Price__c)} (${m.Category__c})`).join('\n')}\n\nWe have ${available.length} items available today!`;
     }
     
-    if (msg.includes('revenue') || msg.includes('insight') || msg.includes('analytics') || msg.includes('sales')) {
+    if (msg.includes('revenue') || msg.includes('insight') || msg.includes('sales') || msg.includes('analytics')) {
         const ins = state.insights;
-        return `📊 Revenue Insights:\n• Total Revenue: ${formatCurrency(ins.totalRevenue)}\n• Completed Orders: ${ins.completedOrders}\n• Avg Order Value: ${formatCurrency(ins.averageOrderValue)}\n• Avg Rating: ${ins.reviewSummary?.averageRating?.toFixed(1) || 'N/A'}★`;
+        return `📊 Revenue Insights:\n• Total Revenue: ${formatCurrency(ins.totalRevenue)}\n• Completed Orders: ${ins.completedOrders || 0}\n• Avg Order Value: ${formatCurrency(ins.averageOrderValue || 0)}\n• Avg Rating: ${ins.reviewSummary?.averageRating?.toFixed(1) || 'N/A'}★`;
     }
     
     if (msg.includes('review') || msg.includes('rating') || msg.includes('feedback')) {
         const summary = state.insights.reviewSummary;
-        return `⭐ Review Summary:\n• Average Rating: ${summary?.averageRating?.toFixed(1) || 'N/A'} / 5.0\n• Total Reviews: ${summary?.totalReviews || 0}\n\nMost recent: "${state.reviews[0]?.Comment__c || 'No reviews yet'}"`;
+        const recentReview = state.reviews && state.reviews.length ? state.reviews[0].Comment__c : 'No reviews yet';
+        return `⭐ Review Summary:\n• Average Rating: ${summary?.averageRating?.toFixed(1) || 'N/A'} / 5.0\n• Total Reviews: ${summary?.totalReviews || 0}\n\nMost recent: "${recentReview}"`;
     }
     
     if (msg.includes('help') || msg.includes('what can you')) {
-        return `I can help you with:\n• 📦 Order tracking — "Show my orders"\n• 🍽️ Menu recommendations — "What should I eat?"\n• 📊 Revenue insights — "Show revenue"\n• ⭐ Reviews — "Show reviews"\n\nJust ask me anything!`;
+        return `I can help you with:\n• 📦 Order tracking — "Show my orders" or "Track ORD-xxxxxx"\n• 🍽️ Menu recommendations — "What should I eat?"\n• 📊 Revenue insights — "Show revenue"\n• ⭐ Reviews — "Show reviews"\n\nJust ask me anything!`;
     }
     
-    return `I'm SmartMenu AI Assistant! I can help with:\n• Order tracking\n• Menu recommendations\n• Revenue insights\n• Customer reviews\n\nTry asking "Show my orders" or "What's on the menu?"`;
+    return `I'm SmartMenu AI Assistant! I can help with:\n• Order tracking (e.g. "where is ORD-XXXXXX?")\n• Menu recommendations (e.g. "do you have paneer?")\n• Revenue insights (e.g. "show revenue")\n• Customer reviews\n\nTry asking "Show my orders" or "What's on the menu?"`;
 }
 
 function addChatMessage(text, sender) {
@@ -810,11 +848,64 @@ document.addEventListener('DOMContentLoaded', () => {
         addChatMessage(msg, 'user');
         input.value = '';
         
-        // Simulate typing delay
-        setTimeout(() => {
-            const response = getBotResponse(msg);
-            addChatMessage(response, 'bot');
-        }, 400 + Math.random() * 400);
+        if (state.connected) {
+            // Show typing indicator
+            const container = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-message bot typing';
+            typingDiv.innerHTML = '<div class="message-bubble">...</div>';
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+            
+            // Try to find if user mentioned an order name in their message to pass as orderId context
+            let foundOrderId = null;
+            const ordMatch = msg.match(/ORD-\d{8}-\d{6}/i) || msg.match(/ORD-\d+/i);
+            if (ordMatch) {
+                const foundName = ordMatch[0].toUpperCase();
+                const matchedOrder = state.orders.find(o => 
+                    o.Name.toUpperCase() === foundName || 
+                    getFormattedOrderId(o.Id).toUpperCase() === foundName
+                );
+                if (matchedOrder) {
+                    foundOrderId = matchedOrder.Id;
+                }
+            }
+
+            fetch(`${state.orgUrl}/services/apexrest/agent/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${state.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sessionId: state.chatSessionId || 'session_default',
+                    message: msg,
+                    orderId: foundOrderId
+                })
+            })
+            .then(res => {
+                typingDiv.remove();
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                const botReply = data.responseText || "I didn't receive a response from the server.";
+                addChatMessage(botReply, 'bot');
+            })
+            .catch(err => {
+                typingDiv.remove();
+                logEvent(`[CHAT EXCEPTION] Failed to connect to Agentforce: ${err.message}. Falling back to local assistant.`, 'api-error');
+                // Fallback to local response if Salesforce is unreachable
+                const response = getBotResponse(msg);
+                addChatMessage(response, 'bot');
+            });
+        } else {
+            // Simulate typing delay
+            setTimeout(() => {
+                const response = getBotResponse(msg);
+                addChatMessage(response, 'bot');
+            }, 400 + Math.random() * 400);
+        }
     };
     
     document.getElementById('chatSend').addEventListener('click', sendMessage);

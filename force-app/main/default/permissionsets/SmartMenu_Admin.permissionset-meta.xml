@@ -143,4 +143,19 @@
         <readable>true</readable>
         <editable>true</editable>
     </fieldPermissions>
+    <fieldPermissions>
+        <field>Order_Item__c.Menu_Item__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Order_Item__c.Unit_Price__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Order_Item__c.Line_Total__c</field>
+        <readable>true</readable>
+        <editable>false</editable>
+    </fieldPermissions>
 </PermissionSet>

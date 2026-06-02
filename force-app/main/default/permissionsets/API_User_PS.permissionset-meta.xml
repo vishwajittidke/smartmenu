@@ -14,4 +14,19 @@
     <objectPermissions>
         <object>Integration_Transaction__c</object><allowCreate>true</allowCreate><allowRead>true</allowRead><allowEdit>false</allowEdit><allowDelete>false</allowDelete><viewAllRecords>false</viewAllRecords><modifyAllRecords>false</modifyAllRecords>
     </objectPermissions>
+    <fieldPermissions>
+        <field>Order_Item__c.Menu_Item__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Order_Item__c.Unit_Price__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Order_Item__c.Line_Total__c</field>
+        <readable>true</readable>
+        <editable>false</editable>
+    </fieldPermissions>
 </PermissionSet>

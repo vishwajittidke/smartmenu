@@ -84,17 +84,92 @@ public with sharing class AgentforceAssistant {
     private static String routeAndRespond(AgentRequest req) {
         String msg = req.message != null ? req.message.toLowerCase() : '';
 
+        // Greetings
+        if (msg.contains('hello') || msg.contains('hi') || msg.contains('hey') || msg.contains('hola') || msg.contains('greetings')) {
+            return 'Hello! Welcome to SmartMenu. I am your virtual culinary assistant. 🍽️ How can I help you today? You can ask me about our menu, check your order status, or query restaurant analytics!';
+        }
+
+        // Thanks
+        if (msg.contains('thank you') || msg.contains('thanks') || msg.contains('appreciate it')) {
+            return 'You\'re very welcome! If you need anything else, feel free to ask. Enjoy your meal! 😊';
+        }
+
         // Order status inquiry
         if (msg.contains('order') && (msg.contains('status') || msg.contains('where') || msg.contains('track'))) {
+            // First check if an orderId was explicitly passed in the context
             if (String.isNotBlank(req.orderId)) {
                 Order__c order = OrderSelector.selectById(req.orderId);
                 if (order != null) {
                     return 'Your order "' + order.Name + '" is currently ' + order.Status__c +
-                           '. Total: $' + order.Total__c;
+                           '. Total: ₹' + order.Total__c;
                 }
-                return 'I don\'t have enough information to answer that. I could not locate that order.';
             }
-            return 'Could you please provide your order number so I can look it up?';
+            
+            // Otherwise, try to extract the order name (e.g. ORD-20260602-120001) from the message
+            String orderName = null;
+            Integer ordIdx = msg.indexOf('ord-');
+            if (ordIdx != -1) {
+                String sub = msg.substring(ordIdx);
+                List<String> parts = sub.split('[\\s,;.!]+');
+                if (!parts.isEmpty()) {
+                    orderName = parts[0].toUpperCase();
+                }
+            }
+            
+            if (String.isNotBlank(orderName)) {
+                List<Order__c> orders = [
+                    SELECT Id, Name, Status__c, Total__c, Customer__r.Name,
+                           (SELECT Id, Menu_Item__r.Name, Quantity__c FROM Order_Items__r)
+                    FROM Order__c 
+                    WHERE Name = :orderName 
+                    LIMIT 1
+                ];
+                if (!orders.isEmpty()) {
+                    Order__c o = orders[0];
+                    String itemsDesc = '';
+                    if (o.Order_Items__r != null && !o.Order_Items__r.isEmpty()) {
+                        List<String> itemNames = new List<String>();
+                        for (Order_Item__c item : o.Order_Items__r) {
+                            String itemName = item.Menu_Item__r != null ? item.Menu_Item__r.Name : 'Item';
+                            itemNames.add(itemName + ' (x' + Integer.valueOf(item.Quantity__c) + ')');
+                        }
+                        itemsDesc = ' containing ' + String.join(itemNames, ', ');
+                    }
+                    return 'Order details for ' + o.Name + ':\n' +
+                           '• Customer: ' + (o.Customer__r != null ? o.Customer__r.Name : 'Guest') + '\n' +
+                           '• Status: ' + o.Status__c + '\n' +
+                           '• Total: ₹' + o.Total__c + '\n' +
+                           '• Items:' + itemsDesc;
+                }
+            }
+            
+            return 'Could you please provide your order number (e.g. ORD-XXXXXX) so I can look it up?';
+        }
+
+        // Specific Item Query
+        if (msg.contains('paneer') || msg.contains('wrap') || msg.contains('pasta') || msg.contains('falafel') || msg.contains('salad') || msg.contains('dessert') || msg.contains('beverage') || msg.contains('drink')) {
+            String searchKey = '';
+            if (msg.contains('paneer') || msg.contains('wrap')) searchKey = 'Paneer';
+            else if (msg.contains('pasta')) searchKey = 'Pasta';
+            else if (msg.contains('falafel') || msg.contains('salad')) searchKey = 'Falafel';
+            else if (msg.contains('dessert') || msg.contains('panna')) searchKey = 'Panna';
+            else if (msg.contains('lemonade') || msg.contains('beverage') || msg.contains('drink')) searchKey = 'Lemon';
+            
+            if (String.isNotBlank(searchKey)) {
+                List<Menu_Item__c> matchedItems = [
+                    SELECT Id, Name, Description__c, Price__c, Category__c 
+                    FROM Menu_Item__c 
+                    WHERE Is_Available__c = true AND Name LIKE :('%' + searchKey + '%')
+                    LIMIT 3
+                ];
+                if (!matchedItems.isEmpty()) {
+                    String respText = 'Yes, we have that available! Here is what we found:\n';
+                    for (Menu_Item__c item : matchedItems) {
+                        respText += '• *' + item.Name + '* (₹' + item.Price__c + ') — ' + item.Description__c + '\n';
+                    }
+                    return respText;
+                }
+            }
         }
 
         // Menu recommendations — grounded in actual data
@@ -105,7 +180,7 @@ public with sharing class AgentforceAssistant {
             }
             String response = 'Here are our top available items:\n';
             for (Menu_Item__c item : items) {
-                response += '• ' + item.Name + ' ($' + item.Price__c + ') — ' + item.Category__c + '\n';
+                response += '• ' + item.Name + ' (₹' + item.Price__c + ') — ' + item.Category__c + '\n';
             }
             return response;
         }

@@ -36,8 +36,8 @@ private class AgentforceAssistantTest {
             AgentforceAssistant.handleMessages(new List<AgentforceAssistant.AgentRequest>{ req });
         Test.stopTest();
 
-        System.assert(responses[0].responseText.contains('SmartMenu Assistant'),
-                       'Default response should identify as SmartMenu Assistant');
+        System.assert(responses[0].responseText.contains('SmartMenu'),
+                       'Default response should identify as SmartMenu');
     }
 
     @isTest
@@ -48,5 +48,22 @@ private class AgentforceAssistantTest {
 
         List<AI_Conversation__c> logs = [SELECT Id FROM AI_Conversation__c WHERE Session_Id__c = 'legacy-session'];
         System.assertEquals(1, logs.size(), 'Legacy method should also log conversation');
+    }
+
+    @isTest
+    static void testAgentApi() {
+        RestRequest req = new RestRequest();
+        req.requestUri = '/services/apexrest/agent/';
+        req.httpMethod = 'POST';
+        req.requestBody = Blob.valueOf('{"sessionId":"session-api-test","message":"Hello"}');
+        RestContext.request = req;
+        RestContext.response = new RestResponse();
+
+        Test.startTest();
+        AgentApi.doPost();
+        Test.stopTest();
+
+        System.assertEquals(200, RestContext.response.statusCode, 'AgentApi POST should succeed');
+        System.assert(RestContext.response.responseBody.toString().contains('responseText'), 'Should return responseText in body');
     }
 }
