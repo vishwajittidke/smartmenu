@@ -55,8 +55,30 @@ global with sharing class OrderApi {
 
             // Delegate to Service Layer — ensures validation, events, and audit
             Order__c o = OrderService.createOrder(name, customerId, restaurantId);
-            // Set total after creation if provided (service layer doesn't accept total)
-            if (total != null) {
+            
+            // Handle child order items if provided, otherwise set flat total
+            List<Object> itemsList = payload.containsKey('items') ? (List<Object>) payload.get('items') : null;
+            if (itemsList != null && !itemsList.isEmpty()) {
+                List<Order_Item__c> childItems = new List<Order_Item__c>();
+                for (Object itemObj : itemsList) {
+                    Map<String, Object> itemMap = (Map<String, Object>) itemObj;
+                    String menuItemId = (String) itemMap.get('menuItemId');
+                    Decimal qty = itemMap.containsKey('quantity') ? Decimal.valueOf(String.valueOf(itemMap.get('quantity'))) : 1;
+                    
+                    Menu_Item__c menuItem = MenuSelector.selectById(menuItemId);
+                    if (menuItem != null) {
+                        childItems.add(new Order_Item__c(
+                            Order__c = o.Id,
+                            Menu_Item__c = menuItem.Id,
+                            Quantity__c = qty,
+                            Unit_Price__c = menuItem.Price__c
+                        ));
+                    }
+                }
+                if (!childItems.isEmpty()) {
+                    insert childItems;
+                }
+            } else if (total != null) {
                 o.Total__c = total;
                 update o;
             }

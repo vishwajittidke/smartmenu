@@ -10,7 +10,8 @@ const state = {
     orders: [],
     menuItems: [],
     reviews: [],
-    insights: {}
+    insights: {},
+    isFetching: false
 };
 
 // ─── Demo Data ──────────────────────────────────────────────────────────
@@ -208,31 +209,37 @@ function updateHeroStats() {
 
 // ─── Data Loading ───────────────────────────────────────────────────────
 async function loadLiveData() {
-    const insights = await sfFetch('/insights/');
-    if (insights) {
-        state.insights = insights;
-        renderInsights(insights);
-    }
+    if (state.isFetching) return;
+    state.isFetching = true;
+    try {
+        const insights = await sfFetch('/insights/');
+        if (insights) {
+            state.insights = insights;
+            renderInsights(insights);
+        }
 
-    const orders = await sfFetch('/orders/');
-    if (orders) {
-        state.orders = orders;
-        renderOrders(orders);
-    }
+        const orders = await sfFetch('/orders/');
+        if (orders) {
+            state.orders = orders;
+            renderOrders(orders);
+        }
 
-    const menuItems = await sfFetch('/menu/');
-    if (menuItems) {
-        state.menuItems = menuItems;
-        renderMenu(menuItems);
-    }
+        const menuItems = await sfFetch('/menu/');
+        if (menuItems) {
+            state.menuItems = menuItems;
+            renderMenu(menuItems);
+        }
 
-    const reviews = await sfFetch('/reviews/');
-    if (reviews) {
-        state.reviews = reviews;
-        renderReviews(reviews);
-    }
+        const reviews = await sfFetch('/reviews/');
+        if (reviews) {
+            state.reviews = reviews;
+            renderReviews(reviews);
+        }
 
-    updateHeroStats();
+        updateHeroStats();
+    } finally {
+        state.isFetching = false;
+    }
 }
 
 function loadDemoData() {
@@ -690,4 +697,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('navbar').style.background = 
             window.scrollY > 50 ? 'rgba(10, 10, 15, 0.95)' : 'rgba(10, 10, 15, 0.8)';
     });
+
+    // Background auto-refresh polling: fetch records dynamically without manual page refresh every 8 seconds
+    setInterval(async () => {
+        if (state.connected) {
+            await loadLiveData();
+        }
+    }, 8000);
 });
