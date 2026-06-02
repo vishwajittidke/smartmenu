@@ -2,6 +2,10 @@
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>SmartMenu Admin</label>
     <hasActivationRequired>false</hasActivationRequired>
+    <applicationVisibilities>
+        <application>SmartMenu</application>
+        <visible>true</visible>
+    </applicationVisibilities>
     <objectPermissions>
         <object>Order__c</object>
         <allowCreate>true</allowCreate>
