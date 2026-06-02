@@ -751,7 +751,27 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ─── New Menu Item Modal ────────────────────────────────────────────
     const menuModal = document.getElementById('newMenuModal');
-    document.getElementById('btnNewMenuItem').addEventListener('click', () => menuModal.classList.add('open'));
+    const categorySelect = document.getElementById('menuItemCategory');
+    const spicinessGroup = document.getElementById('spicinessFormGroup');
+    const spicinessSelect = document.getElementById('menuItemSpiciness');
+
+    categorySelect.addEventListener('change', () => {
+        const cat = categorySelect.value;
+        if (cat === 'Dessert' || cat === 'Beverage') {
+            spicinessGroup.style.display = 'none';
+            spicinessSelect.value = '';
+        } else {
+            spicinessGroup.style.display = 'block';
+            if (spicinessSelect.value === '') {
+                spicinessSelect.value = 'Mild';
+            }
+        }
+    });
+
+    document.getElementById('btnNewMenuItem').addEventListener('click', () => {
+        menuModal.classList.add('open');
+        categorySelect.dispatchEvent(new Event('change'));
+    });
     document.getElementById('newMenuClose').addEventListener('click', () => menuModal.classList.remove('open'));
     menuModal.addEventListener('click', (e) => { if (e.target === menuModal) menuModal.classList.remove('open'); });
     
@@ -759,10 +779,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('menuItemName').value.trim();
         const desc = document.getElementById('menuItemDesc').value.trim();
         const price = parseFloat(document.getElementById('menuItemPrice').value) || 0;
-        const category = document.getElementById('menuItemCategory').value;
+        const category = categorySelect.value;
         const cuisineType = document.getElementById('menuItemCuisine').value;
-        const spicinessLevel = document.getElementById('menuItemSpiciness').value;
+        let spicinessLevel = spicinessSelect.value;
         const isVegan = document.getElementById('menuItemVegan').checked;
+
+        if (category === 'Dessert' || category === 'Beverage') {
+            spicinessLevel = null;
+        }
         
         if (!name) { showToast('Item name is required', 'error'); return; }
         if (price <= 0) { showToast('Price must be greater than 0', 'error'); return; }
@@ -816,10 +840,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('menuItemName').value = '';
         document.getElementById('menuItemDesc').value = '';
         document.getElementById('menuItemPrice').value = '';
-        document.getElementById('menuItemCategory').value = 'Appetizer';
+        categorySelect.value = 'Appetizer';
         document.getElementById('menuItemCuisine').value = 'Indian';
-        document.getElementById('menuItemSpiciness').value = 'Mild';
+        spicinessSelect.value = 'Mild';
         document.getElementById('menuItemVegan').checked = false;
+        categorySelect.dispatchEvent(new Event('change'));
         menuModal.classList.remove('open');
     });
 
