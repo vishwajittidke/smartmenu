@@ -6,7 +6,12 @@
 public class TestDataFactory {
 
     public static Account createRestaurant(String name) {
-        Account a = new Account(Name = name);
+        Account a = new Account(
+            Name = name,
+            Cuisines__c = 'Indian, Chinese, Italian',
+            Opening_Hours__c = '11:00 AM - 11:00 PM',
+            Location_Area__c = 'Connaught Place'
+        );
         insert a;
         return a;
     }

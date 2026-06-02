@@ -6,4 +6,14 @@
     <referenceTo>Account</referenceTo>
     <relationshipName>Reviews</relationshipName>
     <relationshipLabel>Reviews</relationshipLabel>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>Account.Cuisines__c</field>
+            <operation>notEqual</operation>
+            <value></value>
+        </filterItems>
+        <isOptional>true</isOptional>
+        <errorMessage>The selected Account should have the Cuisines field populated to be considered a Restaurant.</errorMessage>
+    </lookupFilter>
 </CustomField>
