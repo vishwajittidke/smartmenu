@@ -7,7 +7,7 @@ private class MenuSelectorTest {
     @isTest
     static void testSelectByRestaurant() {
         Account restaurant = TestDataFactory.createRestaurant('MenuSel Restaurant');
-        TestDataFactory.createMenuItem('Veggie Wrap', 12.00, 'Main Course', restaurant.Id);
+        TestDataFactory.createMenuItem('Veggie Wrap', 199.00, 'Main Course', restaurant.Id);
         TestDataFactory.createMenuItem('Soda', 3.00, 'Beverage', restaurant.Id);
 
         List<Menu_Item__c> results = MenuSelector.selectByRestaurant(restaurant.Id);
