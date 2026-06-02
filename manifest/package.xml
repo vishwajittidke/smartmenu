@@ -39,6 +39,10 @@
         <name>PermissionSet</name>
     </types>
     <types>
+        <members>*</members>
+        <name>CustomTab</name>
+    </types>
+    <types>
         <members>Order__c.Total_Must_Be_Positive_For_Delivery</members>
         <members>Order__c.Status_Transition_Guard</members>
         <members>Review__c.Rating_Range_Check</members>
