@@ -185,8 +185,8 @@ function getStatusClass(status) {
 }
 
 function formatCurrency(val) {
-    if (val === null || val === undefined) return '$0.00';
-    return '$' + Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (val === null || val === undefined) return '₹0.00';
+    return '₹' + Number(val).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function formatDate(dateStr) {
