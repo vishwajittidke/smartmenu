@@ -393,13 +393,13 @@ function loadDemoData() {
 function getBotResponse(message) {
     const msg = message.toLowerCase();
     
-    // Greetings
-    if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey') || msg.includes('hola') || msg.includes('greetings')) {
+    // Greetings (word boundaries only)
+    if (/\b(hello|hi|hey|hola|greetings)\b/i.test(msg)) {
         return 'Hello! Welcome to SmartMenu. I am your virtual culinary assistant. 🍽️ How can I help you today? You can ask me about our menu, check your order status, or query restaurant analytics!';
     }
     
-    // Thanks
-    if (msg.includes('thank you') || msg.includes('thanks') || msg.includes('appreciate it')) {
+    // Thanks (word boundaries only)
+    if (/\b(thanks|thank\s+you|appreciate\s+it)\b/i.test(msg)) {
         return 'You\'re very welcome! If you need anything else, feel free to ask. Enjoy your meal! 😊';
     }
     

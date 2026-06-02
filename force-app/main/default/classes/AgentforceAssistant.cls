@@ -81,16 +81,21 @@ public with sharing class AgentforceAssistant {
         }
     }
 
+    private static Boolean matchesPattern(String text, String regex) {
+        if (text == null) return false;
+        return Pattern.compile(regex).matcher(text).find();
+    }
+
     private static String routeAndRespond(AgentRequest req) {
         String msg = req.message != null ? req.message.toLowerCase() : '';
 
-        // Greetings
-        if (msg.contains('hello') || msg.contains('hi') || msg.contains('hey') || msg.contains('hola') || msg.contains('greetings')) {
+        // Greetings - matching word boundaries only (prevents matching 'think', 'this', etc.)
+        if (matchesPattern(msg, '\\b(hello|hi|hey|hola|greetings)\\b')) {
             return 'Hello! Welcome to SmartMenu. I am your virtual culinary assistant. 🍽️ How can I help you today? You can ask me about our menu, check your order status, or query restaurant analytics!';
         }
 
-        // Thanks
-        if (msg.contains('thank you') || msg.contains('thanks') || msg.contains('appreciate it')) {
+        // Thanks - matching word boundaries only
+        if (matchesPattern(msg, '\\b(thanks|thank\\s+you|appreciate\\s+it)\\b')) {
             return 'You\'re very welcome! If you need anything else, feel free to ask. Enjoy your meal! 😊';
         }
 
@@ -160,10 +165,36 @@ public with sharing class AgentforceAssistant {
                            '• Status: ' + o.Status__c + '\n' +
                            '• Total: ₹' + o.Total__c + '\n' +
                            '• Items:' + itemsDesc;
+                } else {
+                    return 'I couldn\'t locate order "' + orderName + '" in our system. Please double check the ID and try again.';
                 }
             }
             
             return 'Could you please provide your order number (e.g. ORD-XXXXXX) so I can look it up?';
+        }
+
+        // Reviews, Ratings & Feedback
+        if (msg.contains('review') || msg.contains('rating') || msg.contains('feedback') || msg.contains('opinion') || msg.contains('think of the food')) {
+            Id restaurantId = null;
+            Account acc = AccountSelector.selectFirstRestaurant();
+            if (acc != null) {
+                restaurantId = acc.Id;
+            }
+            
+            Map<String, Object> summary = ReviewService.generateSummary(restaurantId);
+            Decimal avgRating = summary.containsKey('averageRating') && summary.get('averageRating') != null ? (Decimal) summary.get('averageRating') : 0.0;
+            Integer totalReviews = summary.containsKey('totalReviews') && summary.get('totalReviews') != null ? (Integer) summary.get('totalReviews') : 0;
+            
+            String latestComment = 'No reviews yet';
+            List<Review__c> recent = ReviewSelector.selectByRestaurant(restaurantId);
+            if (!recent.isEmpty()) {
+                latestComment = recent[0].Comment__c;
+            }
+            
+            return '⭐ Customer Feedback Summary:\n' +
+                   '• Average Rating: ' + avgRating.setScale(1) + ' / 5.0\n' +
+                   '• Total Reviews: ' + totalReviews + '\n\n' +
+                   'Most recent comment: "' + latestComment + '"';
         }
 
         // Specific Item Query
@@ -207,7 +238,15 @@ public with sharing class AgentforceAssistant {
 
         // Revenue insights — grounded in actual data
         if (msg.contains('revenue') || msg.contains('insight') || msg.contains('sales') || msg.contains('analytics')) {
-            return 'I can provide revenue insights for a specific restaurant. Please provide the restaurant ID or ask your admin for access to the Revenue Dashboard.';
+            Map<String, Object> ins = RevenueService.getInsights(null);
+            Decimal totalRevenue = ins.containsKey('totalRevenue') && ins.get('totalRevenue') != null ? (Decimal) ins.get('totalRevenue') : 0.00;
+            Integer completedOrders = ins.containsKey('completedOrders') && ins.get('completedOrders') != null ? (Integer) ins.get('completedOrders') : 0;
+            Decimal averageOrderValue = ins.containsKey('averageOrderValue') && ins.get('averageOrderValue') != null ? (Decimal) ins.get('averageOrderValue') : 0.00;
+            
+            return '📊 Live Revenue Insights:\n' +
+                   '• Total Revenue: ₹' + totalRevenue.setScale(2) + '\n' +
+                   '• Completed Orders: ' + completedOrders + '\n' +
+                   '• Avg Order Value: ₹' + averageOrderValue.setScale(2);
         }
 
         // Default response
