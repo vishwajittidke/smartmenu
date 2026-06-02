@@ -95,30 +95,52 @@ function renderStars(rating) {
     return stars;
 }
 
+// Helper to generate deterministic short Order ID in ORD-000000 format
+function getFormattedOrderId(id) {
+    if (!id) return 'ORD-000000';
+    if (id.startsWith('demo-')) {
+        const num = id.replace('demo-', '');
+        return 'ORD-' + String(parseInt(num) % 1000000).padStart(6, '0');
+    }
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+        hash = (hash << 5) - hash + id.charCodeAt(i);
+        hash |= 0;
+    }
+    return 'ORD-' + String(Math.abs(hash) % 1000000).padStart(6, '0');
+}
+
 function renderOrders(orders) {
     const grid = document.getElementById('ordersGrid');
     if (!orders.length) {
         grid.innerHTML = '<div class="order-card"><p style="color:var(--text-muted)">No orders found. Connect to your Salesforce org or use Demo Mode.</p></div>';
         return;
     }
-    grid.innerHTML = orders.map((o, i) => `
-        <div class="order-card" style="animation-delay: ${i * 0.05}s">
-            <div class="order-card-header">
-                <span class="order-name">${o.Name}</span>
-                <span class="order-status ${getStatusClass(o.Status__c)}">${o.Status__c || 'Unknown'}</span>
-            </div>
-            <div class="order-details">
-                <div class="order-detail">
-                    <span class="order-detail-label">Total</span>
-                    <span class="order-detail-value">${formatCurrency(o.Total__c)}</span>
+    grid.innerHTML = orders.map((o, i) => {
+        const customerName = o.Customer__r ? o.Customer__r.Name : (o.Customer__c || '—');
+        return `
+            <div class="order-card" style="animation-delay: ${i * 0.05}s">
+                <div class="order-card-header">
+                    <span class="order-name">${getFormattedOrderId(o.Id)}</span>
+                    <span class="order-status ${getStatusClass(o.Status__c)}">${o.Status__c || 'Unknown'}</span>
                 </div>
-                <div class="order-detail">
-                    <span class="order-detail-label">Date</span>
-                    <span class="order-detail-value">${formatDate(o.CreatedDate)}</span>
+                <div class="order-details">
+                    <div class="order-detail">
+                        <span class="order-detail-label">Customer</span>
+                        <span class="order-detail-value">${customerName}</span>
+                    </div>
+                    <div class="order-detail">
+                        <span class="order-detail-label">Total</span>
+                        <span class="order-detail-value">${formatCurrency(o.Total__c)}</span>
+                    </div>
+                    <div class="order-detail">
+                        <span class="order-detail-label">Date</span>
+                        <span class="order-detail-value">${formatDate(o.CreatedDate)}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function renderMenu(items, filter = 'All') {
