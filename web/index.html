@@ -3,205 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SmartMenu — AI-Powered Restaurant Operations Platform. Manage orders, menus, reviews, and get intelligent insights.">
-    <title>SmartMenu — AI-Powered Restaurant Platform</title>
+    <meta name="description" content="SmartMenu Workspace — Premium operational command console for AI-powered restaurant management, live orders, reviews, and analytics synced with Salesforce.">
+    <title>SmartMenu — Command Workspace</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Ambient Background -->
-    <div class="ambient-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-brand">
-            <div class="brand-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>
-                </svg>
+    <!-- Main Workspace Container -->
+    <div class="workspace-wrapper">
+        
+        <!-- Top Workspace Bar -->
+        <header class="navbar" id="navbar">
+            <div class="nav-brand">
+                <div class="brand-logo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>
+                    </svg>
+                </div>
+                <span class="brand-title">SmartMenu</span>
+                <span class="brand-badge">Workspace</span>
             </div>
-            <span class="brand-text">SmartMenu</span>
-            <span class="brand-badge">AI</span>
-        </div>
-        <div class="nav-links">
-            <a href="#dashboard" class="nav-link active" data-section="dashboard">Dashboard</a>
-            <a href="#orders" class="nav-link" data-section="orders">Orders</a>
-            <a href="#menu" class="nav-link" data-section="menu">Menu</a>
-            <a href="#reviews" class="nav-link" data-section="reviews">Reviews</a>
-            <a href="#insights" class="nav-link" data-section="insights">Insights</a>
-        </div>
-        <div class="nav-actions">
-            <button class="btn-connect" id="btnConnect">
-                <span class="connect-dot"></span>
-                Connect Org
-            </button>
-        </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <header class="hero" id="dashboard">
-        <div class="hero-content">
-            <div class="hero-badge">🚀 Live Platform</div>
-            <h1 class="hero-title">
-                <span class="gradient-text">SmartMenu</span>
-                <br>Restaurant Intelligence
-            </h1>
-            <p class="hero-subtitle">AI-powered order management, real-time insights, and intelligent customer engagement — all from your Salesforce org.</p>
-            <div class="hero-stats" id="heroStats">
-                <div class="stat-card">
-                    <span class="stat-value" id="statOrders">—</span>
-                    <span class="stat-label">Active Orders</span>
+            <!-- Integrated Dashboard Telemetry Ticker (Saves Vertical Space) -->
+            <div class="header-telemetry" id="heroStats">
+                <div class="telemetry-item">
+                    <span class="telemetry-label">Active Orders</span>
+                    <span class="telemetry-value" id="statOrders">—</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="statMenu">—</span>
-                    <span class="stat-label">Menu Items</span>
+                <div class="telemetry-border"></div>
+                <div class="telemetry-item">
+                    <span class="telemetry-label">Menu Items</span>
+                    <span class="telemetry-value" id="statMenu">—</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="statRevenue">—</span>
-                    <span class="stat-label">Revenue</span>
+                <div class="telemetry-border"></div>
+                <div class="telemetry-item">
+                    <span class="telemetry-label">Today's Revenue</span>
+                    <span class="telemetry-value" id="statRevenue">—</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-value" id="statRating">—</span>
-                    <span class="stat-label">Avg Rating</span>
+                <div class="telemetry-border"></div>
+                <div class="telemetry-item">
+                    <span class="telemetry-label">Avg Rating</span>
+                    <span class="telemetry-value" id="statRating">—</span>
                 </div>
             </div>
-        </div>
-    </header>
 
-    <!-- Connection Modal -->
+            <div class="nav-actions">
+                <button class="btn-chat-toggle" id="chatFab" title="Toggle AI Operator">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                    </svg>
+                    <span>AI Operator</span>
+                </button>
+                <button class="btn-connect" id="btnConnect">
+                    <span class="connect-dot"></span>
+                    <span>Salesforce Connect</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Three-Column Work Desk Grid -->
+        <main class="work-desk">
+
+            <!-- Column 1: Live Orders Desk (Left Column) -->
+            <section class="desk-column orders-desk" id="orders">
+                <div class="column-header">
+                    <div>
+                        <h2 class="column-title">Orders Desk</h2>
+                        <span class="column-desc">Real-time Salesforce queue</span>
+                    </div>
+                    <div class="column-actions">
+                        <button class="btn-panel-action" id="btnNewOrder" title="Place New Order">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>New</span>
+                        </button>
+                        <button class="btn-panel-icon" id="btnRefreshOrders" title="Force Sync Sync">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <!-- Dynamic Card Stream -->
+                <div class="card-stream scrollable-stream" id="ordersGrid">
+                    <!-- Skeleton Cards Rendered During Initial Load -->
+                    <div class="skeleton-stream-item"></div>
+                    <div class="skeleton-stream-item"></div>
+                    <div class="skeleton-stream-item"></div>
+                </div>
+            </section>
+
+            <!-- Column 2: Kitchen Catalog (Middle Column) -->
+            <section class="desk-column catalog-desk" id="menu">
+                <div class="column-header">
+                    <div>
+                        <h2 class="column-title">Kitchen Catalog</h2>
+                        <span class="column-desc">Menu recipes & prices</span>
+                    </div>
+                    <div class="column-actions">
+                        <button class="btn-panel-action" id="btnNewMenuItem" title="Add Menu Item">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>Add Item</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Category Filter Chips Row -->
+                <div class="catalog-filters-row" id="categoryFilters">
+                    <!-- Dynamically populated chips -->
+                </div>
+                <!-- Catalog Scrollable Stream -->
+                <div class="catalog-stream scrollable-stream" id="menuGrid">
+                    <div class="skeleton-stream-item"></div>
+                    <div class="skeleton-stream-item"></div>
+                </div>
+            </section>
+
+            <!-- Column 3: Customer Feedback (Right Column) -->
+            <section class="desk-column feedback-desk" id="reviews">
+                <div class="column-header">
+                    <div>
+                        <h2 class="column-title">Feedback Feed</h2>
+                        <span class="column-desc">Live customer evaluations</span>
+                    </div>
+                    <div class="column-actions">
+                        <button class="btn-panel-action" id="btnNewReview" title="Submit Review">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>Add Review</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Review List Container -->
+                <div class="reviews-stream scrollable-stream" id="reviewsContainer">
+                    <div class="skeleton-stream-item"></div>
+                    <div class="skeleton-stream-item"></div>
+                </div>
+            </section>
+
+            <!-- Sub-desk: Revenue analytics in side drawer or compact nested panel -->
+            <section class="desk-column analytics-desk" id="insights" style="display:none;">
+                <div id="insightRevenue">$0</div>
+                <div id="insightCompletedOrders">0</div>
+                <div id="insightAvgOrder">$0</div>
+                <div id="insightAvgRating">0</div>
+                <div id="statusChart"></div>
+                <div id="barChart"></div>
+            </section>
+
+        </main>
+
+        <!-- Persistent Bottom Event Tracker Console -->
+        <footer class="integration-console" id="integrationConsole">
+            <div class="console-header" id="consoleHeader">
+                <div class="console-title">
+                    <span class="console-pulse"></span>
+                    <span>Operational Integration Console — Live Event flow</span>
+                </div>
+                <div class="console-actions">
+                    <button class="btn-console-clear" id="btnConsoleClear">Clear logs</button>
+                    <button class="console-toggle" id="consoleToggle">▲ Expand Console Logs</button>
+                </div>
+            </div>
+            <div class="console-body" id="consoleBody">
+                <div class="console-log-line system">
+                    <span class="timestamp">[SYSTEM]</span>
+                    <span class="message">Console initialized. Monitoring Salesforce REST API transactions & streams...</span>
+                </div>
+            </div>
+        </footer>
+
+    </div> <!-- Workspace Wrapper End -->
+
+    <!-- ==================== DIALOGS & OVERLAYS ==================== -->
+
+    <!-- 1. Salesforce Settings Drawer (Slide-down from Nav) -->
     <div class="modal-overlay" id="connectionModal">
         <div class="modal">
             <div class="modal-header">
-                <h2>Connect to Salesforce</h2>
+                <h2>Salesforce Connection Setup</h2>
                 <button class="modal-close" id="modalClose">&times;</button>
             </div>
             <div class="modal-body">
-                <p class="modal-description">Enter your Salesforce org details to connect the live dashboard.</p>
                 <div class="form-group">
                     <label for="orgUrl">Instance URL</label>
                     <input type="url" id="orgUrl" placeholder="https://your-org.my.salesforce.com" value="https://opensource2-dev-ed.develop.my.salesforce.com">
                 </div>
                 <div class="form-group">
                     <label for="accessToken">Access Token</label>
-                    <input type="password" id="accessToken" placeholder="Paste your session/access token" value="">
-                    <span class="form-hint">Run <code>sf org display -o vtidke56@gmail.com --json</code> to get your token</span>
+                    <input type="password" id="accessToken" placeholder="Paste your REST OAuth Token here...">
+                    <span class="form-hint">Run <code>sf org display -o vtidke56@gmail.com --json</code> to extract your session token</span>
                 </div>
-                <button class="btn-primary" id="btnSaveConnection">Connect & Load Data</button>
-                <button class="btn-secondary" id="btnDemoMode">Use Demo Mode</button>
+                <div class="modal-actions-row">
+                    <button class="btn-primary" id="btnSaveConnection">Establish Live Sync</button>
+                    <button class="btn-secondary" id="btnDemoMode">Use offline Demo Mode</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Orders Section -->
-    <section class="section" id="orders">
-        <div class="section-header">
-            <div>
-                <h2 class="section-title">Recent Orders</h2>
-                <p class="section-subtitle">Live data from your Salesforce org</p>
-            </div>
-            <div style="display:flex;gap:8px">
-                <button class="btn-create" id="btnNewOrder">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    New Order
-                </button>
-                <button class="btn-icon" id="btnRefreshOrders" title="Refresh">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-                </button>
-            </div>
-        </div>
-        <div class="orders-grid" id="ordersGrid">
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-        </div>
-    </section>
-
-    <!-- New Order Modal -->
+    <!-- 2. Create Order Modal -->
     <div class="modal-overlay" id="newOrderModal">
         <div class="modal">
             <div class="modal-header">
-                <h2>Create New Order</h2>
+                <h2>Create Operations Order</h2>
                 <button class="modal-close" id="newOrderClose">&times;</button>
             </div>
             <div class="modal-body">
-
+                <!-- Hidden validation placeholder to prevent app.js reset crashes -->
+                <input type="hidden" id="orderName" value="">
+                
                 <div class="form-group">
                     <label for="orderCustomer">Customer Name</label>
                     <input type="text" id="orderCustomer" placeholder="e.g. John Doe">
                 </div>
                 <div class="form-group">
                     <label>Select Menu Items</label>
-                    <div id="orderItemsSelector" style="max-height: 180px; overflow-y: auto; margin-top: 5px; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; display: flex; flex-direction: column; gap: 8px; box-sizing: border-box;">
-                        <!-- Dynamically populated by JS -->
+                    <div id="orderItemsSelector" class="form-items-selector">
+                        <!-- Populated dynamically by JS -->
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="orderTotal">Total Amount ($) — Auto Calculated</label>
-                    <input type="number" id="orderTotal" placeholder="0.00" min="0" step="0.01" readonly style="background: rgba(255,255,255,0.05); color: #888; cursor: not-allowed;">
+                    <label for="orderTotal">Total Operations Value ($) — Auto Calculated</label>
+                    <input type="number" id="orderTotal" placeholder="0.00" min="0" step="0.01" readonly class="input-readonly">
                 </div>
                 <div class="form-group">
-                    <label for="orderStatus">Status</label>
+                    <label for="orderStatus">Initial Queue Status</label>
                     <select id="orderStatus">
-                        <option value="New">New</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
+                        <option value="New">New (Pending Dispatch)</option>
+                        <option value="In Progress">In Progress (Kitchen Deck)</option>
+                        <option value="Completed">Completed (Ready)</option>
                     </select>
                 </div>
-                <button class="btn-primary" id="btnSubmitOrder">Create Order</button>
+                <button class="btn-primary" id="btnSubmitOrder">Submit Order to Salesforce</button>
             </div>
         </div>
     </div>
 
-    <!-- Menu Section -->
-    <section class="section" id="menu">
-        <div class="section-header">
-            <div>
-                <h2 class="section-title">Menu Items</h2>
-                <p class="section-subtitle">Restaurant menu with categories and pricing</p>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center">
-                <div class="category-filters" id="categoryFilters"></div>
-                <button class="btn-create" id="btnNewMenuItem">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Add Item
-                </button>
-            </div>
-        </div>
-        <div class="menu-grid" id="menuGrid">
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-        </div>
-    </section>
-
-    <!-- New Menu Item Modal -->
+    <!-- 3. Add Menu Item Modal -->
     <div class="modal-overlay" id="newMenuModal">
         <div class="modal">
             <div class="modal-header">
-                <h2>Add Menu Item</h2>
+                <h2>Add Catalog Recipe</h2>
                 <button class="modal-close" id="newMenuClose">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="menuItemName">Item Name</label>
+                    <label for="menuItemName">Recipe Name</label>
                     <input type="text" id="menuItemName" placeholder="e.g. Truffle Pasta">
                 </div>
                 <div class="form-group">
                     <label for="menuItemDesc">Description</label>
-                    <input type="text" id="menuItemDesc" placeholder="Short description">
+                    <input type="text" id="menuItemDesc" placeholder="Recipe instructions/details">
                 </div>
                 <div class="form-group">
-                    <label for="menuItemPrice">Price ($)</label>
+                    <label for="menuItemPrice">Sales Price ($)</label>
                     <input type="number" id="menuItemPrice" placeholder="0.00" min="0" step="0.01">
                 </div>
                 <div class="form-group">
-                    <label for="menuItemCategory">Category</label>
+                    <label for="menuItemCategory">Category Segment</label>
                     <select id="menuItemCategory">
                         <option value="Appetizer">Appetizer</option>
                         <option value="Main Course">Main Course</option>
@@ -210,113 +267,46 @@
                         <option value="Side">Side</option>
                     </select>
                 </div>
-                <button class="btn-primary" id="btnSubmitMenuItem">Add to Menu</button>
+                <button class="btn-primary" id="btnSubmitMenuItem">Insert Catalog Record</button>
             </div>
         </div>
     </div>
 
-    <!-- Reviews Section -->
-    <section class="section" id="reviews">
-        <div class="section-header">
-            <div>
-                <h2 class="section-title">Customer Reviews</h2>
-                <p class="section-subtitle">What customers are saying</p>
-            </div>
-            <div>
-                <button class="btn-create" id="btnNewReview">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Add Review
-                </button>
-            </div>
-        </div>
-        <div class="reviews-container" id="reviewsContainer">
-            <div class="skeleton-card"></div>
-            <div class="skeleton-card"></div>
-        </div>
-    </section>
-
-    <!-- New Review Modal -->
+    <!-- 4. Write Customer Review Modal -->
     <div class="modal-overlay" id="newReviewModal">
         <div class="modal">
             <div class="modal-header">
-                <h2>Write Customer Review</h2>
+                <h2>Record Customer Feedback</h2>
                 <button class="modal-close" id="newReviewClose">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="reviewRating">Rating (1 to 5)</label>
+                    <label for="reviewRating">Rating score</label>
                     <select id="reviewRating">
-                        <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-                        <option value="4">⭐⭐⭐⭐ (4)</option>
-                        <option value="3">⭐⭐⭐ (3)</option>
-                        <option value="2">⭐⭐ (2)</option>
-                        <option value="1">⭐ (1)</option>
+                        <option value="5">⭐⭐⭐⭐⭐ (5 - Perfect)</option>
+                        <option value="4">⭐⭐⭐⭐ (4 - Good)</option>
+                        <option value="3">⭐⭐⭐ (3 - Average)</option>
+                        <option value="2">⭐⭐ (2 - Poor)</option>
+                        <option value="1">⭐ (1 - Unacceptable)</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="reviewComment">Comment</label>
-                    <textarea id="reviewComment" rows="4" placeholder="Share your dining experience..." style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;padding:8px;font-family:inherit;resize:none;box-sizing:border-box;"></textarea>
+                    <label for="reviewComment">Patron Comment</label>
+                    <textarea id="reviewComment" rows="4" placeholder="Detail dining review text here..."></textarea>
                 </div>
-                <button class="btn-primary" id="btnSubmitReview">Submit Review</button>
+                <button class="btn-primary" id="btnSubmitReview">Insert Feedback Record</button>
             </div>
         </div>
     </div>
 
-    <!-- Insights Section -->
-    <section class="section" id="insights">
-        <div class="section-header">
-            <div>
-                <h2 class="section-title">Revenue Insights</h2>
-                <p class="section-subtitle">AI-powered analytics from your order data</p>
-            </div>
-        </div>
-        <div class="insights-grid" id="insightsGrid">
-            <div class="insight-card glass">
-                <div class="insight-icon">💰</div>
-                <div class="insight-content">
-                    <span class="insight-value" id="insightRevenue">$0</span>
-                    <span class="insight-label">Total Revenue</span>
-                </div>
-            </div>
-            <div class="insight-card glass">
-                <div class="insight-icon">📦</div>
-                <div class="insight-content">
-                    <span class="insight-value" id="insightCompletedOrders">0</span>
-                    <span class="insight-label">Completed Orders</span>
-                </div>
-            </div>
-            <div class="insight-card glass">
-                <div class="insight-icon">📊</div>
-                <div class="insight-content">
-                    <span class="insight-value" id="insightAvgOrder">$0</span>
-                    <span class="insight-label">Avg Order Value</span>
-                </div>
-            </div>
-            <div class="insight-card glass">
-                <div class="insight-icon">⭐</div>
-                <div class="insight-content">
-                    <span class="insight-value" id="insightAvgRating">0</span>
-                    <span class="insight-label">Avg Rating</span>
-                </div>
-            </div>
-        </div>
-        <div class="chart-container glass" id="statusChart">
-            <h3>Orders by Status</h3>
-            <div class="bar-chart" id="barChart"></div>
-        </div>
-    </section>
-
-    <!-- AI Assistant Floating Widget -->
-    <div class="chat-fab" id="chatFab">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    </div>
+    <!-- ==================== COLLAPSIBLE AI DRAWER ==================== -->
     <div class="chat-window" id="chatWindow">
         <div class="chat-header">
-            <div class="chat-header-info">
+            <div class="chat-title-row">
                 <div class="chat-avatar">🤖</div>
                 <div>
-                    <span class="chat-title">SmartMenu AI</span>
-                    <span class="chat-status">Powered by Agentforce</span>
+                    <h3>Agentforce Assistant</h3>
+                    <span>Operations Co-Pilot</span>
                 </div>
             </div>
             <button class="chat-close" id="chatClose">&times;</button>
@@ -324,43 +314,19 @@
         <div class="chat-messages" id="chatMessages">
             <div class="chat-message bot">
                 <div class="message-bubble">
-                    Hi! I'm your SmartMenu AI Assistant. I can help with order tracking, menu recommendations, and restaurant insights. What would you like to know?
+                    SmartMenu AI System Online. Ask me to query current order metrics, recommend menu item segments, or print customer feedback summaries.
                 </div>
             </div>
         </div>
         <div class="chat-input-area">
-            <input type="text" class="chat-input" id="chatInput" placeholder="Ask about orders, menu, insights...">
-            <button class="chat-send" id="chatSend">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <input type="text" id="chatInput" placeholder="Command AI co-pilot...">
+            <button id="chatSend" title="Send Command">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <p>SmartMenu © 2026 — AI-Powered Restaurant Platform built on Salesforce + Agentforce</p>
-    </footer>
-
-    <!-- Real-Time Integration & Event Flow Console -->
-    <div class="integration-console" id="integrationConsole">
-        <div class="console-header" id="consoleHeader">
-            <div class="console-title">
-                <span style="display:inline-block;width:8px;height:8px;background:#55efc4;border-radius:50%;box-shadow:0 0 8px #55efc4;"></span>
-                <span>Real-Time Integration & Event Flow Console</span>
-            </div>
-            <div style="display:flex;gap:16px;align-items:center;">
-                <button class="btn-console-clear" id="btnConsoleClear">Clear Logs</button>
-                <button class="console-toggle" id="consoleToggle">▲ Expand Console Logs</button>
-            </div>
-        </div>
-        <div class="console-body" id="consoleBody">
-            <div class="console-log-line system">
-                <span class="timestamp">[SYSTEM]</span>
-                <span class="message">Console initialized. Monitoring live Salesforce event streams & REST API cycles...</span>
-            </div>
-        </div>
-    </div>
-
-    <script src="app.js?v=2.1"></script>
+    <!-- Cache-busting dynamic bootstrap script -->
+    <script src="app.js?v=2.2"></script>
 </body>
 </html>
