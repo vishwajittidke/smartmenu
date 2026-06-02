@@ -403,7 +403,7 @@ function getBotResponse(message) {
         return 'You\'re very welcome! If you need anything else, feel free to ask. Enjoy your meal! 😊';
     }
     
-    if (msg.includes('order') && (msg.includes('status') || msg.includes('track') || msg.includes('where'))) {
+    if ((msg.includes('order') && (msg.includes('status') || msg.includes('track') || msg.includes('where'))) || msg.includes('ord-')) {
         // Try to extract order number from input
         let orderName = null;
         const ordMatch = msg.match(/ord-\d{8}-\d{6}/) || msg.match(/ord-\d+/);

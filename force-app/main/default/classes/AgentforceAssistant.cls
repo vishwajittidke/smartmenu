@@ -95,7 +95,7 @@ public with sharing class AgentforceAssistant {
         }
 
         // Order status inquiry
-        if (msg.contains('order') && (msg.contains('status') || msg.contains('where') || msg.contains('track'))) {
+        if ((msg.contains('order') && (msg.contains('status') || msg.contains('where') || msg.contains('track'))) || msg.contains('ord-')) {
             // First check if an orderId was explicitly passed in the context
             if (String.isNotBlank(req.orderId)) {
                 Order__c order = OrderSelector.selectById(req.orderId);
@@ -105,7 +105,7 @@ public with sharing class AgentforceAssistant {
                 }
             }
             
-            // Otherwise, try to extract the order name (e.g. ORD-20260602-120001) from the message
+            // Otherwise, try to extract the order name (e.g. ORD-20260602-120001 or ORD-031916) from the message
             String orderName = null;
             Integer ordIdx = msg.indexOf('ord-');
             if (ordIdx != -1) {
@@ -124,8 +124,28 @@ public with sharing class AgentforceAssistant {
                     WHERE Name = :orderName 
                     LIMIT 1
                 ];
+                Order__c matchedOrder = null;
                 if (!orders.isEmpty()) {
-                    Order__c o = orders[0];
+                    matchedOrder = orders[0];
+                } else {
+                    // Check last 100 orders to resolve hash-based short IDs (e.g. ORD-031916)
+                    List<Order__c> recentOrders = [
+                        SELECT Id, Name, Status__c, Total__c, Customer__r.Name,
+                               (SELECT Id, Menu_Item__r.Name, Quantity__c FROM Order_Items__r)
+                        FROM Order__c 
+                        ORDER BY CreatedDate DESC 
+                        LIMIT 100
+                    ];
+                    for (Order__c o : recentOrders) {
+                        if (getHashId(o.Id) == orderName) {
+                            matchedOrder = o;
+                            break;
+                        }
+                    }
+                }
+                
+                if (matchedOrder != null) {
+                    Order__c o = matchedOrder;
                     String itemsDesc = '';
                     if (o.Order_Items__r != null && !o.Order_Items__r.isEmpty()) {
                         List<String> itemNames = new List<String>();
@@ -229,5 +249,19 @@ public with sharing class AgentforceAssistant {
         } catch (Exception ex) {
             System.debug(LoggingLevel.ERROR, 'Error logging failed: ' + ex.getMessage());
         }
+    }
+
+    @TestVisible
+    private static String getHashId(String recordId) {
+        if (String.isBlank(recordId)) return '';
+        Integer hash = 0;
+        for (Integer i = 0; i < recordId.length(); i++) {
+            Integer c = recordId.charAt(i);
+            hash = (hash << 5) - hash + c;
+        }
+        Integer absHash = Math.abs(hash);
+        Integer remainder = Math.mod(absHash, 1000000);
+        String shortId = String.valueOf(remainder);
+        return 'ORD-' + shortId.leftPad(6, '0');
     }
 }
