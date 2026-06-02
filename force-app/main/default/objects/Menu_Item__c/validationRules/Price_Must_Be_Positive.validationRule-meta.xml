@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Price_Must_Be_Positive</fullName>
+    <active>true</active>
+    <description>Menu item price must be greater than zero.</description>
+    <errorConditionFormula>OR(
+    ISBLANK(Price__c),
+    Price__c &lt;= 0
+)</errorConditionFormula>
+    <errorDisplayField>Price__c</errorDisplayField>
+    <errorMessage>Price must be greater than ₹0.</errorMessage>
+</ValidationRule>

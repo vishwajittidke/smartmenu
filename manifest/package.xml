@@ -38,5 +38,19 @@
         <members>*</members>
         <name>PermissionSet</name>
     </types>
+    <types>
+        <members>Order__c.Total_Must_Be_Positive_For_Delivery</members>
+        <members>Order__c.Status_Transition_Guard</members>
+        <members>Review__c.Rating_Range_Check</members>
+        <members>Review__c.Comment_Required_For_Low_Rating</members>
+        <members>Menu_Item__c.Price_Must_Be_Positive</members>
+        <members>Order_Item__c.Quantity_Must_Be_Positive</members>
+        <name>ValidationRule</name>
+    </types>
+    <types>
+        <members>Order_Ready_Notification</members>
+        <members>Review_Auto_Response</members>
+        <name>Flow</name>
+    </types>
     <version>62.0</version>
 </Package>
