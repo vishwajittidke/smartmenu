@@ -2,8 +2,6 @@
    SmartMenu Web App — Connects to Salesforce REST API (OrderApi)
    ═══════════════════════════════════════════════════════════════════════ */
 
-alert("SmartMenu Loaded - Indian Rupees (₹) Active!");
-
 // ─── State ──────────────────────────────────────────────────────────────
 const state = {
     connected: false,
