@@ -188,11 +188,11 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="orgUrl">Instance URL</label>
+                    <label for="orgUrl">Instance URL <span class="required-asterisk">*</span></label>
                     <input type="url" id="orgUrl" placeholder="https://your-org.my.salesforce.com" value="https://opensource2-dev-ed.develop.my.salesforce.com">
                 </div>
                 <div class="form-group">
-                    <label for="accessToken">Access Token</label>
+                    <label for="accessToken">Access Token <span class="required-asterisk">*</span></label>
                     <input type="password" id="accessToken" placeholder="Paste your REST OAuth Token here...">
                     <span class="form-hint">Run <code>sf org display -o vtidke56@gmail.com --json</code> to extract your session token</span>
                 </div>
@@ -220,7 +220,7 @@
                     <input type="text" id="orderCustomer" placeholder="e.g. John Doe">
                 </div>
                 <div class="form-group">
-                    <label>Select Menu Items</label>
+                    <label>Select Menu Items <span class="required-asterisk">*</span></label>
                     <div id="orderItemsSelector" class="form-items-selector">
                         <!-- Populated dynamically by JS -->
                     </div>
@@ -251,7 +251,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="menuItemName">Recipe Name</label>
+                    <label for="menuItemName">Recipe Name <span class="required-asterisk">*</span></label>
                     <input type="text" id="menuItemName" placeholder="e.g. Truffle Pasta">
                 </div>
                 <div class="form-group">
@@ -259,7 +259,7 @@
                     <input type="text" id="menuItemDesc" placeholder="Recipe instructions/details">
                 </div>
                 <div class="form-group">
-                    <label for="menuItemPrice">Sales Price (₹)</label>
+                    <label for="menuItemPrice">Sales Price (₹) <span class="required-asterisk">*</span></label>
                     <input type="number" id="menuItemPrice" placeholder="0.00" min="0" step="0.01">
                 </div>
                 <div class="form-group">
@@ -321,7 +321,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="reviewComment">Patron Comment</label>
+                    <label for="reviewComment">Patron Comment <span class="required-asterisk">*</span></label>
                     <textarea id="reviewComment" rows="4" placeholder="Detail dining review text here..."></textarea>
                 </div>
                 <button class="btn-primary" id="btnSubmitReview">Insert Feedback Record</button>

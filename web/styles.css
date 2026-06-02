@@ -1058,3 +1058,8 @@ body {
     border-left: 4px solid #ff7675;
     color: #ff7675;
 }
+
+.required-asterisk {
+    color: #ff7675;
+    margin-left: 3px;
+}
