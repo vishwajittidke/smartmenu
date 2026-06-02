@@ -167,6 +167,26 @@
                                 <lightning-formatted-date-time value={selectedOrder.Order_Date__c} year="numeric" month="short" day="numeric" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>
                             </p>
                         </div>
+                        
+                        <!-- Selected Recipes List -->
+                        <div class="slds-col slds-size_1-of-1 slds-p-around_small" style="border-top: 1px dashed #cbd5e1; margin-top: 8px;">
+                            <span class="slds-text-title_bold slds-text-color_weak" style="font-size: 0.8rem; text-transform: uppercase;">Selected Recipes</span>
+                            <div class="slds-m-top_xx-small">
+                                <template if:true={selectedOrder.hasItems}>
+                                    <ul class="slds-list_dotted">
+                                        <template for:each={selectedOrder.items} for:item="item">
+                                            <li key={item.Id} style="color: #0f172a; font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+                                                <span>{item.recipeName}</span>
+                                                <span class="slds-badge slds-badge_lightest" style="font-weight: bold; background-color: #f1f5f9; border: 1px solid #e2e8f0;">Qty: {item.quantity}</span>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </template>
+                                <template if:false={selectedOrder.hasItems}>
+                                    <p class="slds-text-color_weak" style="font-style: italic;">No recipes selected for this order.</p>
+                                </template>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

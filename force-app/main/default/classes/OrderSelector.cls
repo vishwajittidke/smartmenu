@@ -6,7 +6,8 @@ public with sharing class OrderSelector {
 
     public static List<Order__c> selectRecentOrders(Integer limitCount) {
         return [
-            SELECT Id, Name, Status__c, Total__c, Customer__c, Customer__r.Name, Restaurant__c, Order_Date__c, CreatedDate
+            SELECT Id, Name, Status__c, Total__c, Customer__c, Customer__r.Name, Restaurant__c, Order_Date__c, CreatedDate,
+                   (SELECT Id, Menu_Item__r.Name, Quantity__c, Unit_Price__c FROM Order_Items__r)
             FROM Order__c
             ORDER BY CreatedDate DESC
             LIMIT :limitCount
@@ -15,7 +16,8 @@ public with sharing class OrderSelector {
 
     public static Order__c selectById(Id orderId) {
         List<Order__c> orders = [
-            SELECT Id, Name, Status__c, Total__c, Customer__c, Customer__r.Name, Restaurant__c, Order_Date__c
+            SELECT Id, Name, Status__c, Total__c, Customer__c, Customer__r.Name, Restaurant__c, Order_Date__c,
+                   (SELECT Id, Menu_Item__r.Name, Quantity__c, Unit_Price__c FROM Order_Items__r)
             FROM Order__c
             WHERE Id = :orderId
             LIMIT 1

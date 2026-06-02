@@ -10,6 +10,7 @@ const COLUMNS = [
     { label: 'Customer Name', fieldName: 'customerName', type: 'text', sortable: true },
     { label: 'Status', fieldName: 'Status__c', type: 'text', cellAttributes: { class: { fieldName: 'statusClass' } } },
     { label: 'Total Price', fieldName: 'Total__c', type: 'currency', typeAttributes: { currencyCode: 'INR' } },
+    { label: 'Selected Recipes', fieldName: 'recipesList', type: 'text', wrapText: true },
     { label: 'Order Date', fieldName: 'Order_Date__c', type: 'date', typeAttributes: { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' } },
     {
         type: 'button',
@@ -70,11 +71,25 @@ export default class SmartMenuDashboard extends LightningElement {
                 }
                 const formattedOrderId = 'ORD-' + String(Math.abs(hash) % 1000000).padStart(6, '0');
 
+                const items = order.Order_Items__r ? order.Order_Items__r.map(item => {
+                    return {
+                        Id: item.Id,
+                        recipeName: item.Menu_Item__r ? item.Menu_Item__r.Name : '—',
+                        quantity: item.Quantity__c || 1,
+                        unitPrice: item.Unit_Price__c || 0
+                    };
+                }) : [];
+
+                const recipesList = items.map(item => `${item.recipeName} (x${item.quantity})`).join(', ') || '—';
+
                 return {
                     ...order,
                     formattedOrderId: formattedOrderId,
                     customerName: order.Customer__r ? order.Customer__r.Name : '—',
-                    statusClass: `slds-text-title_bold ${statusClass}`
+                    statusClass: `slds-text-title_bold ${statusClass}`,
+                    items: items,
+                    hasItems: items.length > 0,
+                    recipesList: recipesList
                 };
             });
             this.error = undefined;
