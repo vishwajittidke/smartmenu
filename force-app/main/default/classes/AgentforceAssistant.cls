@@ -107,6 +107,8 @@ public with sharing class AgentforceAssistant {
                 if (order != null) {
                     return 'Your order "' + order.Name + '" is currently ' + order.Status__c +
                            '. Total: ₹' + order.Total__c;
+                } else {
+                    return 'I could not locate order details for the provided ID in our system.';
                 }
             }
             

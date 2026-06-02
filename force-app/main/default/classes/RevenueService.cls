@@ -15,6 +15,23 @@ public with sharing class RevenueService {
         Map<String, Object> insights = new Map<String, Object>();
         insights.put('restaurantId', restaurantId);
 
+        // Fetch Restaurant details
+        if (restaurantId != null) {
+            List<Account> accs = [
+                SELECT Id, Name, Cuisines__c, Opening_Hours__c, Location_Area__c
+                FROM Account
+                WHERE Id = :restaurantId
+                LIMIT 1
+            ];
+            if (!accs.isEmpty()) {
+                Account acc = accs[0];
+                insights.put('restaurantName', acc.Name);
+                insights.put('restaurantCuisines', acc.Cuisines__c);
+                insights.put('restaurantHours', acc.Opening_Hours__c);
+                insights.put('restaurantLocation', acc.Location_Area__c);
+            }
+        }
+
         // Total revenue + order count
         AggregateResult[] revenueAgg = OrderSelector.selectRevenueByRestaurant(restaurantId);
         if (!revenueAgg.isEmpty()) {

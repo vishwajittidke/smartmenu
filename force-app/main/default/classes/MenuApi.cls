@@ -39,8 +39,19 @@ global with sharing class MenuApi {
                 ? Decimal.valueOf(String.valueOf(payload.get('price'))) : null;
             String category = (String) payload.get('category');
             String restaurantId = (String) payload.get('restaurantId');
+            String cuisineType = payload.containsKey('cuisineType') ? (String) payload.get('cuisineType') : null;
+            String spicinessLevel = payload.containsKey('spicinessLevel') ? (String) payload.get('spicinessLevel') : null;
+            Boolean isVegan = payload.containsKey('isVegan') ? (Boolean) payload.get('isVegan') : false;
 
             Menu_Item__c item = MenuService.createMenuItem(name, description, price, category, restaurantId);
+            
+            // Set new fields if provided
+            if (String.isNotBlank(cuisineType) || String.isNotBlank(spicinessLevel) || isVegan) {
+                if (String.isNotBlank(cuisineType)) item.Cuisine_Type__c = cuisineType;
+                if (String.isNotBlank(spicinessLevel)) item.Spiciness_Level__c = spicinessLevel;
+                item.Is_Vegan__c = isVegan;
+                update item;
+            }
 
             res.statusCode = 201;
             res.responseBody = Blob.valueOf(JSON.serialize(item));

@@ -50,7 +50,10 @@ const DEMO = {
             Price__c: 249.00,
             Category__c: 'Main Course',
             Description__c: 'Spiced cottage cheese cubes marinated in yogurt, tandoor-grilled with peppers and wrapped in a warm tortilla with mint chutney.',
-            Is_Available__c: true
+            Is_Available__c: true,
+            Cuisine_Type__c: 'Indian',
+            Spiciness_Level__c: 'Medium',
+            Is_Vegan__c: true
         },
         {
             Id: 'demo-m2',
@@ -58,7 +61,10 @@ const DEMO = {
             Price__c: 449.00,
             Category__c: 'Main Course',
             Description__c: 'Artisanal pasta tossed in an exquisite black truffle cream sauce with sautéed wild mushrooms and shaved parmesan.',
-            Is_Available__c: true
+            Is_Available__c: true,
+            Cuisine_Type__c: 'Italian',
+            Spiciness_Level__c: 'Mild',
+            Is_Vegan__c: false
         },
         {
             Id: 'demo-m3',
@@ -66,7 +72,10 @@ const DEMO = {
             Price__c: 299.00,
             Category__c: 'Appetizer',
             Description__c: 'Creamy house-made chickpeas tahini spread topped with organic olive oil, served with warm tandoori-baked pita bread.',
-            Is_Available__c: true
+            Is_Available__c: true,
+            Cuisine_Type__c: 'Other',
+            Spiciness_Level__c: 'Mild',
+            Is_Vegan__c: true
         },
         {
             Id: 'demo-m4',
@@ -74,7 +83,10 @@ const DEMO = {
             Price__c: 349.00,
             Category__c: 'Appetizer',
             Description__c: 'Deep-fried spiced herb chickpea balls served over mixed salad greens, cucumber, cherry tomatoes, and tahini drizzle.',
-            Is_Available__c: true
+            Is_Available__c: true,
+            Cuisine_Type__c: 'Other',
+            Spiciness_Level__c: 'Mild',
+            Is_Vegan__c: true
         },
         {
             Id: 'demo-m5',
@@ -82,7 +94,10 @@ const DEMO = {
             Price__c: 189.00,
             Category__c: 'Dessert',
             Description__c: 'Silky eggless vanilla panna cotta infused with fresh Alphonso mango purée and topped with toasted coconut flakes.',
-            Is_Available__c: true
+            Is_Available__c: true,
+            Cuisine_Type__c: 'Continental',
+            Spiciness_Level__c: 'Mild',
+            Is_Vegan__c: true
         },
         {
             Id: 'demo-m6',
@@ -90,7 +105,10 @@ const DEMO = {
             Price__c: 99.00,
             Category__c: 'Beverage',
             Description__c: 'Zesty and refreshing house-brewed lemonade with freshly squeezed ginger, fresh mint leaves, and organic honey.',
-            Is_Available__c: true
+            Is_Available__c: true,
+            Cuisine_Type__c: 'Other',
+            Spiciness_Level__c: 'Medium',
+            Is_Vegan__c: true
         }
     ],
     reviews: [
@@ -262,20 +280,38 @@ function renderMenu(items, filter = 'All') {
         return;
     }
     
-    grid.innerHTML = filtered.map((m, i) => `
-        <div class="menu-card" style="animation-delay: ${i * 0.05}s">
-            <div class="menu-card-header">
-                <span class="menu-item-name">${m.Name}</span>
-                <span class="menu-item-price">${formatCurrency(m.Price__c)}</span>
+    grid.innerHTML = filtered.map((m, i) => {
+        let tagsHtml = '';
+        if (m.Cuisine_Type__c) {
+            tagsHtml += `<span class="menu-tag cuisine">${m.Cuisine_Type__c}</span>`;
+        }
+        if (m.Spiciness_Level__c) {
+            let spiceEmoji = '🌶️';
+            if (m.Spiciness_Level__c === 'Medium') spiceEmoji = '🌶️🌶️';
+            else if (m.Spiciness_Level__c === 'Spicy') spiceEmoji = '🌶️🌶️🌶️';
+            else if (m.Spiciness_Level__c === 'Extra Hot') spiceEmoji = '🌶️🌶️🌶️🌶️';
+            tagsHtml += `<span class="menu-tag spicy">${m.Spiciness_Level__c} ${spiceEmoji}</span>`;
+        }
+        if (m.Is_Vegan__c) {
+            tagsHtml += `<span class="menu-tag vegan">Vegan 🌱</span>`;
+        }
+        
+        return `
+            <div class="menu-card" style="animation-delay: ${i * 0.05}s">
+                <div class="menu-card-header">
+                    <span class="menu-item-name">${m.Name}</span>
+                    <span class="menu-item-price">${formatCurrency(m.Price__c)}</span>
+                </div>
+                <div class="menu-item-category">${m.Category__c || ''}</div>
+                ${tagsHtml ? `<div class="menu-tags">${tagsHtml}</div>` : ''}
+                <p class="menu-item-desc">${m.Description__c || ''}</p>
+                <div class="menu-item-available">
+                    <span class="available-dot ${m.Is_Available__c ? 'yes' : 'no'}"></span>
+                    ${m.Is_Available__c ? 'Available' : 'Unavailable'}
+                </div>
             </div>
-            <div class="menu-item-category">${m.Category__c || ''}</div>
-            <p class="menu-item-desc">${m.Description__c || ''}</p>
-            <div class="menu-item-available">
-                <span class="available-dot ${m.Is_Available__c ? 'yes' : 'no'}"></span>
-                ${m.Is_Available__c ? 'Available' : 'Unavailable'}
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
     
     // Render category filters
     const categories = ['All', ...new Set(items.map(m => m.Category__c).filter(Boolean))];
@@ -327,6 +363,19 @@ function renderInsights(insights) {
             <span class="bar-label">${status}</span>
         </div>
     `).join('');
+
+    // Update restaurant metadata subtitle
+    const subtitleEl = document.getElementById('restaurantSubtitle');
+    if (subtitleEl) {
+        if (state.connected && insights.restaurantName) {
+            const cuisines = insights.restaurantCuisines ? ` • ${insights.restaurantCuisines}` : '';
+            const hours = insights.restaurantHours ? ` • Open: ${insights.restaurantHours}` : '';
+            const location = insights.restaurantLocation ? ` • ${insights.restaurantLocation}` : '';
+            subtitleEl.textContent = `${insights.restaurantName}${cuisines}${hours}${location}`;
+        } else {
+            subtitleEl.textContent = 'Offline Demo Mode';
+        }
+    }
 }
 
 function updateHeroStats() {
@@ -711,6 +760,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const desc = document.getElementById('menuItemDesc').value.trim();
         const price = parseFloat(document.getElementById('menuItemPrice').value) || 0;
         const category = document.getElementById('menuItemCategory').value;
+        const cuisineType = document.getElementById('menuItemCuisine').value;
+        const spicinessLevel = document.getElementById('menuItemSpiciness').value;
+        const isVegan = document.getElementById('menuItemVegan').checked;
         
         if (!name) { showToast('Item name is required', 'error'); return; }
         if (price <= 0) { showToast('Price must be greater than 0', 'error'); return; }
@@ -729,7 +781,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         description: desc,
                         price,
                         category,
-                        restaurantId
+                        restaurantId,
+                        cuisineType,
+                        spicinessLevel,
+                        isVegan
                     })
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -746,7 +801,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 Description__c: desc,
                 Price__c: price,
                 Category__c: category,
-                Is_Available__c: true
+                Is_Available__c: true,
+                Cuisine_Type__c: cuisineType,
+                Spiciness_Level__c: spicinessLevel,
+                Is_Vegan__c: isVegan
             };
             state.menuItems.unshift(newItem);
             renderMenu(state.menuItems);
@@ -759,6 +817,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('menuItemDesc').value = '';
         document.getElementById('menuItemPrice').value = '';
         document.getElementById('menuItemCategory').value = 'Appetizer';
+        document.getElementById('menuItemCuisine').value = 'Indian';
+        document.getElementById('menuItemSpiciness').value = 'Mild';
+        document.getElementById('menuItemVegan').checked = false;
         menuModal.classList.remove('open');
     });
 

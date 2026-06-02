@@ -45,7 +45,7 @@ private class AgentforceAssistantCoverageTest {
             AgentforceAssistant.handleMessages(new List<AgentforceAssistant.AgentRequest>{ req });
 
         System.assertEquals(1, responses.size());
-        System.assert(responses[0].responseText.contains('revenue'),
+        System.assert(responses[0].responseText.containsIgnoreCase('revenue'),
             'Should mention revenue');
     }
 

@@ -5,7 +5,8 @@ public with sharing class MenuSelector {
 
     public static List<Menu_Item__c> selectByRestaurant(Id restaurantId) {
         return [
-            SELECT Id, Name, Description__c, Price__c, Category__c, Is_Available__c, Restaurant__c
+            SELECT Id, Name, Description__c, Price__c, Category__c, Is_Available__c, Restaurant__c,
+                   Cuisine_Type__c, Spiciness_Level__c, Is_Vegan__c
             FROM Menu_Item__c
             WHERE Restaurant__c = :restaurantId
             ORDER BY Category__c, Name
@@ -14,7 +15,8 @@ public with sharing class MenuSelector {
 
     public static List<Menu_Item__c> selectAvailableByRestaurant(Id restaurantId) {
         return [
-            SELECT Id, Name, Description__c, Price__c, Category__c, Restaurant__c
+            SELECT Id, Name, Description__c, Price__c, Category__c, Restaurant__c,
+                   Cuisine_Type__c, Spiciness_Level__c, Is_Vegan__c
             FROM Menu_Item__c
             WHERE Restaurant__c = :restaurantId
               AND Is_Available__c = true
@@ -24,7 +26,8 @@ public with sharing class MenuSelector {
 
     public static Menu_Item__c selectById(Id menuItemId) {
         List<Menu_Item__c> items = [
-            SELECT Id, Name, Description__c, Price__c, Category__c, Is_Available__c, Restaurant__c
+            SELECT Id, Name, Description__c, Price__c, Category__c, Is_Available__c, Restaurant__c,
+                   Cuisine_Type__c, Spiciness_Level__c, Is_Vegan__c
             FROM Menu_Item__c
             WHERE Id = :menuItemId
             LIMIT 1
@@ -64,7 +67,8 @@ public with sharing class MenuSelector {
 
     public static List<Menu_Item__c> selectAllAvailable(Integer limitCount) {
         return [
-            SELECT Id, Name, Description__c, Price__c, Category__c, Is_Available__c, Restaurant__c
+            SELECT Id, Name, Description__c, Price__c, Category__c, Is_Available__c, Restaurant__c,
+                   Cuisine_Type__c, Spiciness_Level__c, Is_Vegan__c
             FROM Menu_Item__c
             WHERE Is_Available__c = true
             ORDER BY Category__c, Name
